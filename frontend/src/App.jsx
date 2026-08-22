@@ -1,18 +1,16 @@
 function App() {
   return (
     <main>
-      <h1>Logic Leak</h1>
-      <p>Security code-review training for AI-generated code.</p>
+      <h1>LOGIC LEAK</h1>
 
-      <section>
-        <h2>Find it. Explain it. Fix it.</h2>
-        <p>
-          Identify vulnerabilities, understand why they happen,
-          and build secure fixes.
-        </p>
+      <h2>Can You Spot the Leak?</h2>
 
-        <button>Start Challenge</button>
-      </section>
+      <p>
+        Challenge your code-review skills by finding
+        vulnerabilities hidden in AI-generated code.
+      </p>
+
+      <button>Start Challenge</button>
     </main>
   )
 }
