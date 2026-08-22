@@ -1,6 +1,14 @@
 import { useState } from "react"
 import challenges from "../data/challenges"
 
+function containsKeyword(text, keywords) {
+  const normalizedText = text.trim().toLowerCase()
+
+  return keywords.some((keyword) =>
+    normalizedText.includes(keyword.toLowerCase())
+  )
+}
+
 function Challenge() {
   const [challengeIndex, setChallengeIndex] = useState(0)
 
@@ -37,22 +45,29 @@ function Challenge() {
   function handleTier2Submit(event) {
     event.preventDefault()
 
-    const explanation = tier2Explanation.trim().toLowerCase()
-    const fix = tier2Fix.trim().toLowerCase()
+    const explanation = tier2Explanation.trim()
+    const fix = tier2Fix.trim()
 
     if (!explanation || !fix) {
       setResult("Please complete both answers.")
       return
     }
 
-    const knowsSqlInjection =
-      explanation.includes("sql injection")
+    const vulnerabilityKeyword = challenge.tier2.expectedKeywords[0]
 
-    const knowsSecureFix =
-      fix.includes("parameterized query") ||
-      fix.includes("prepared statement")
+    const fixKeywords = challenge.tier2.expectedKeywords.slice(1)
 
-    if (knowsSqlInjection && knowsSecureFix) {
+    const knowsVulnerability = containsKeyword(
+      explanation,
+      [vulnerabilityKeyword]
+    )
+
+    const knowsSecureFix = containsKeyword(
+      fix,
+      fixKeywords
+    )
+
+    if (knowsVulnerability && knowsSecureFix) {
       setScore(
         (previousScore) =>
           previousScore + challenge.tier2.points
@@ -70,21 +85,22 @@ function Challenge() {
   function handleTier3Submit(event) {
     event.preventDefault()
 
-    const normalizedAnswer = tier3Answer.trim().toLowerCase()
+    const normalizedAnswer = tier3Answer.trim()
 
     if (!normalizedAnswer) {
       setResult("Please enter your answer.")
       return
     }
 
-    const hasNegative =
-      normalizedAnswer.includes("negative")
+    const hasRequiredKeywords =
+      challenge.tier3.expectedKeywords.every(
+        (keyword) =>
+          normalizedAnswer
+            .toLowerCase()
+            .includes(keyword.toLowerCase())
+      )
 
-    const hasValidation =
-      normalizedAnswer.includes("validation") ||
-      normalizedAnswer.includes("validate")
-
-    if (hasNegative && hasValidation) {
+    if (hasRequiredKeywords) {
       setScore(
         (previousScore) =>
           previousScore + challenge.tier3.points
@@ -101,7 +117,9 @@ function Challenge() {
 
   function handleNextChallenge() {
     if (challengeIndex < challenges.length - 1) {
-      setChallengeIndex((previousIndex) => previousIndex + 1)
+      setChallengeIndex(
+        (previousIndex) => previousIndex + 1
+      )
 
       setTier(1)
       setAnswer("")
@@ -140,7 +158,9 @@ function Challenge() {
               id="answer"
               type="text"
               value={answer}
-              onChange={(event) => setAnswer(event.target.value)}
+              onChange={(event) =>
+                setAnswer(event.target.value)
+              }
               placeholder="Enter your answer..."
             />
 

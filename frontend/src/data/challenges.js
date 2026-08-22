@@ -90,6 +90,57 @@ const challenges = [
 
       points: 40
     }
+  },
+
+  {
+    id: 3,
+    title: "E-commerce Checkout",
+    difficulty: "Medium",
+
+    code: `function checkout(userId, productId, price) {
+  const query =
+    "INSERT INTO orders (user_id, product_id, price) VALUES (" +
+    userId +
+    ", " +
+    productId +
+    ", " +
+    price +
+    ")";
+
+  return database.query(query);
+}`,
+
+    tier1: {
+      question: "What security vulnerability exists in this code?",
+      answer: "sql injection",
+      points: 30
+    },
+
+    tier2: {
+      question:
+        "Explain why this checkout code is vulnerable and describe how you would fix it.",
+
+      expectedKeywords: [
+        "sql injection",
+        "parameterized query",
+        "prepared statement"
+      ],
+
+      points: 30
+    },
+
+    tier3: {
+      question:
+        "What validation should be applied to the price before creating the order?",
+
+      expectedKeywords: [
+        "price validation",
+        "positive",
+        "number"
+      ],
+
+      points: 40
+    }
   }
 ]
 
