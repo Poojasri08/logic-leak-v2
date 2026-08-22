@@ -2,17 +2,34 @@ import { useState } from "react"
 
 function Challenge() {
   const [answer, setAnswer] = useState("")
-  const [submitted, setSubmitted] = useState(false)
+  const [result, setResult] = useState(null)
+
+  const correctAnswers = [
+    "sql injection",
+    "sql injection vulnerability",
+    "injection",
+  ]
 
   function handleSubmit(event) {
     event.preventDefault()
-    setSubmitted(true)
+
+    const normalizedAnswer = answer.trim().toLowerCase()
+
+    if (!normalizedAnswer) {
+      setResult("Please enter your finding.")
+      return
+    }
+
+    if (correctAnswers.includes(normalizedAnswer)) {
+      setResult("Correct. You spotted the vulnerability.")
+    } else {
+      setResult("Not quite. Review the code and try again.")
+    }
   }
 
   return (
     <main>
       <h1>Challenge 01</h1>
-
       <p>Can You Spot the Leak?</p>
 
       <section>
@@ -50,11 +67,7 @@ function Challenge() {
           <button type="submit">Submit Finding</button>
         </form>
 
-        {submitted && (
-          <p>
-            Answer submitted: <strong>{answer}</strong>
-          </p>
-        )}
+        {result && <p>{result}</p>}
       </section>
     </main>
   )
