@@ -1,14 +1,10 @@
 import { useState } from "react"
+import challenges from "../data/challenges"
 
 function Challenge() {
+  const challenge = challenges[0]
   const [answer, setAnswer] = useState("")
   const [result, setResult] = useState(null)
-
-  const correctAnswers = [
-    "sql injection",
-    "sql injection vulnerability",
-    "injection",
-  ]
 
   function handleSubmit(event) {
     event.preventDefault()
@@ -20,7 +16,7 @@ function Challenge() {
       return
     }
 
-    if (correctAnswers.includes(normalizedAnswer)) {
+    if (challenge.correctAnswers.includes(normalizedAnswer)) {
       setResult("Correct. You spotted the vulnerability.")
     } else {
       setResult("Not quite. Review the code and try again.")
@@ -29,27 +25,16 @@ function Challenge() {
 
   return (
     <main>
-      <h1>Challenge 01</h1>
+      <h1>Challenge {challenge.id}</h1>
+
       <p>Can You Spot the Leak?</p>
 
       <section>
-        <h2>Bank Transfer</h2>
+        <h2>{challenge.title}</h2>
 
-        <p>
-          Review the code and identify the security vulnerability.
-        </p>
+        <p>{challenge.description}</p>
 
-        <pre>
-{`function transfer(userId, amount) {
-  const query =
-    "UPDATE accounts SET balance = balance - " +
-    amount +
-    " WHERE user_id = " +
-    userId;
-
-  return database.execute(query);
-}`}
-        </pre>
+        <pre>{challenge.code}</pre>
 
         <form onSubmit={handleSubmit}>
           <label htmlFor="answer">
