@@ -54,7 +54,6 @@ function Challenge() {
     }
 
     const vulnerabilityKeyword = challenge.tier2.expectedKeywords[0]
-
     const fixKeywords = challenge.tier2.expectedKeywords.slice(1)
 
     const knowsVulnerability = containsKeyword(
@@ -131,43 +130,98 @@ function Challenge() {
     }
   }
 
+  const displayedTier = tier > 3 ? 3 : tier
+  const progressWidth = `${(displayedTier / 3) * 100}%`
+
   return (
-    <main>
-      <h1>Challenge {challenge.id}</h1>
+    <main className="challenge-page">
+      <div className="challenge-card">
+        <div className="challenge-header">
+          <div>
+            <p className="hero-badge">
+              Challenge {challenge.id}
+            </p>
 
-      <p>Can You Spot the Leak?</p>
+            <h1 className="challenge-title">
+              {challenge.title}
+            </h1>
+          </div>
 
-      <p>
-        Tier: {tier > 3 ? 3 : tier} / 3 | Score: {score}
-      </p>
+          <span className="difficulty-badge">
+            {challenge.difficulty}
+          </span>
+        </div>
 
-      <section>
-        <h2>{challenge.title}</h2>
+        <div className="progress-section">
+          <div className="progress-info">
+            <span>
+              Tier {displayedTier} / 3
+            </span>
 
-        <p>{challenge.description}</p>
+            <span className="score-display">
+              Score: {score} / 100
+            </span>
+          </div>
 
-        <pre>{challenge.code}</pre>
+          <div className="progress-bar">
+            <div
+              className="progress-fill"
+              style={{ width: progressWidth }}
+            />
+          </div>
+        </div>
+
+        <p className="hero-description">
+          Can you spot the security leak?
+        </p>
+
+        {challenge.description && (
+          <p className="hero-description">
+            {challenge.description}
+          </p>
+        )}
+
+        <pre className="code-block">
+          {challenge.code}
+        </pre>
 
         {tier === 1 && (
-          <form onSubmit={handleSubmit}>
-            <label htmlFor="answer">
-              What vulnerability do you see?
-            </label>
+          <section>
+            <h2>Tier 1: Find</h2>
 
-            <input
-              id="answer"
-              type="text"
-              value={answer}
-              onChange={(event) =>
-                setAnswer(event.target.value)
-              }
-              placeholder="Enter your answer..."
-            />
+            <p>
+              What security vulnerability do you see?
+            </p>
 
-            <button type="submit">
-              Submit Finding
-            </button>
-          </form>
+            <form onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label
+                  className="form-label"
+                  htmlFor="answer"
+                >
+                  Your finding
+                </label>
+
+                <input
+                  className="input"
+                  id="answer"
+                  type="text"
+                  value={answer}
+                  onChange={(event) =>
+                    setAnswer(event.target.value)
+                  }
+                  placeholder="Enter the vulnerability..."
+                />
+              </div>
+
+              <button
+                className="primary-button"
+                type="submit"
+              >
+                Submit Finding
+              </button>
+            </form>
+          </section>
         )}
 
         {tier === 2 && (
@@ -177,35 +231,52 @@ function Challenge() {
             <p>{challenge.tier2.question}</p>
 
             <form onSubmit={handleTier2Submit}>
-              <label htmlFor="explanation">
-                Why is this code vulnerable?
-              </label>
+              <div className="form-group">
+                <label
+                  className="form-label"
+                  htmlFor="explanation"
+                >
+                  Why is this code vulnerable?
+                </label>
 
-              <textarea
-                id="explanation"
-                value={tier2Explanation}
-                onChange={(event) =>
-                  setTier2Explanation(event.target.value)
-                }
-                placeholder="Explain the vulnerability..."
-                rows="5"
-              />
+                <textarea
+                  className="textarea"
+                  id="explanation"
+                  value={tier2Explanation}
+                  onChange={(event) =>
+                    setTier2Explanation(
+                      event.target.value
+                    )
+                  }
+                  placeholder="Explain the vulnerability..."
+                  rows="5"
+                />
+              </div>
 
-              <label htmlFor="fix">
-                How would you fix it?
-              </label>
+              <div className="form-group">
+                <label
+                  className="form-label"
+                  htmlFor="fix"
+                >
+                  How would you fix it?
+                </label>
 
-              <textarea
-                id="fix"
-                value={tier2Fix}
-                onChange={(event) =>
-                  setTier2Fix(event.target.value)
-                }
-                placeholder="Describe the secure fix..."
-                rows="5"
-              />
+                <textarea
+                  className="textarea"
+                  id="fix"
+                  value={tier2Fix}
+                  onChange={(event) =>
+                    setTier2Fix(event.target.value)
+                  }
+                  placeholder="Describe the secure fix..."
+                  rows="5"
+                />
+              </div>
 
-              <button type="submit">
+              <button
+                className="primary-button"
+                type="submit"
+              >
                 Submit Tier 2
               </button>
             </form>
@@ -219,21 +290,30 @@ function Challenge() {
             <p>{challenge.tier3.question}</p>
 
             <form onSubmit={handleTier3Submit}>
-              <label htmlFor="tier3Answer">
-                Your answer
-              </label>
+              <div className="form-group">
+                <label
+                  className="form-label"
+                  htmlFor="tier3Answer"
+                >
+                  Your answer
+                </label>
 
-              <textarea
-                id="tier3Answer"
-                value={tier3Answer}
-                onChange={(event) =>
-                  setTier3Answer(event.target.value)
-                }
-                placeholder="Explain the edge case and how to handle it..."
-                rows="6"
-              />
+                <textarea
+                  className="textarea"
+                  id="tier3Answer"
+                  value={tier3Answer}
+                  onChange={(event) =>
+                    setTier3Answer(event.target.value)
+                  }
+                  placeholder="Explain the edge case and how to handle it..."
+                  rows="6"
+                />
+              </div>
 
-              <button type="submit">
+              <button
+                className="primary-button"
+                type="submit"
+              >
                 Submit Tier 3
               </button>
             </form>
@@ -244,24 +324,37 @@ function Challenge() {
           <section>
             <h2>Challenge Complete!</h2>
 
-            <p>You completed all three tiers.</p>
+            <p>
+              You completed all three tiers.
+            </p>
 
-            <p>Final Score: {score} / 100</p>
+            <p className="score-display">
+              Final Score: {score} / 100
+            </p>
 
             {challengeIndex < challenges.length - 1 && (
-              <button onClick={handleNextChallenge}>
+              <button
+                className="primary-button"
+                onClick={handleNextChallenge}
+              >
                 Next Challenge
               </button>
             )}
 
             {challengeIndex === challenges.length - 1 && (
-              <p>You completed all available challenges.</p>
+              <p>
+                You completed all available challenges.
+              </p>
             )}
           </section>
         )}
 
-        {result && <p>{result}</p>}
-      </section>
+        {result && (
+          <div className="feedback">
+            {result}
+          </div>
+        )}
+      </div>
     </main>
   )
 }
