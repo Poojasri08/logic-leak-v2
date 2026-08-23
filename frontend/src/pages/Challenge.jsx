@@ -1,5 +1,4 @@
-import { useState } from "react"
-import challenges from "../data/challenges"
+import { useEffect, useState } from "react"
 
 function containsKeyword(text, keywords) {
   const normalizedText = text.trim().toLowerCase()
@@ -15,12 +14,35 @@ function Challenge() {
   const [result, setResult] = useState(null)
   const [tier, setTier] = useState(1)
   const [score, setScore] = useState(0)
+  const [apiChallenges, setApiChallenges] = useState([])
 
   const [tier2Explanation, setTier2Explanation] = useState("")
   const [tier2Fix, setTier2Fix] = useState("")
+  const [tier2Step, setTier2Step] = useState(1)
   const [tier3Answer, setTier3Answer] = useState("")
 
-  const challenge = challenges[challengeIndex]
+  useEffect(() => {
+    fetch("http://localhost:5000/api/challenges")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to fetch challenges")
+        }
+
+        return response.json()
+      })
+      .then((data) => {
+        setApiChallenges(data)
+      })
+      .catch((error) => {
+        console.error("API error:", error)
+      })
+  }, [])
+
+  if (apiChallenges.length === 0) {
+    return <div>Loading challenges...</div>
+  }
+
+  const challenge = apiChallenges[challengeIndex]
 
   function handleSubmit(event) {
     event.preventDefault()
@@ -43,51 +65,82 @@ function Challenge() {
 
       setResult("Correct. Tier 2 unlocked.")
       setTier(2)
+      setTier2Step(1)
     } else {
-      setResult("Not quite. Review the code and try again.")
+      setResult(
+        "Not quite. Review the code and try again."
+      )
     }
   }
 
   function handleTier2Submit(event) {
     event.preventDefault()
 
-    const explanation = tier2Explanation.trim()
-    const fix = tier2Fix.trim()
+    if (tier2Step === 1) {
+      const explanation = tier2Explanation.trim()
 
-    if (!explanation || !fix) {
-      setResult("Please complete both answers.")
+      if (!explanation) {
+        setResult(
+          "Please explain why the code is vulnerable."
+        )
+        return
+      }
+
+      const vulnerabilityKeyword =
+        challenge.tier2.expectedKeywords[0]
+
+      const knowsVulnerability = containsKeyword(
+        explanation,
+        [vulnerabilityKeyword]
+      )
+
+      if (!knowsVulnerability) {
+        setResult(
+          "Your explanation does not identify the vulnerability correctly."
+        )
+        return
+      }
+
+      setResult(
+        "Correct. Now explain how you would fix it."
+      )
+
+      setTier2Step(2)
+
       return
     }
 
-    const vulnerabilityKeyword =
-      challenge.tier2.expectedKeywords[0]
+    const fix = tier2Fix.trim()
+
+    if (!fix) {
+      setResult(
+        "Please describe how you would fix it."
+      )
+      return
+    }
 
     const fixKeywords =
       challenge.tier2.expectedKeywords.slice(1)
-
-    const knowsVulnerability = containsKeyword(
-      explanation,
-      [vulnerabilityKeyword]
-    )
 
     const knowsSecureFix = containsKeyword(
       fix,
       fixKeywords
     )
 
-    if (knowsVulnerability && knowsSecureFix) {
-      setScore(
-        (previousScore) =>
-          previousScore + challenge.tier2.points
-      )
-
-      setResult("Correct. Tier 3 unlocked.")
-      setTier(3)
-    } else {
+    if (!knowsSecureFix) {
       setResult(
-        "Your explanation or fix is incomplete. Try again."
+        "Your fix is incomplete. Use a secure database query approach."
       )
+      return
     }
+
+    setScore(
+      (previousScore) =>
+        previousScore + challenge.tier2.points
+    )
+
+    setResult("Correct. Tier 3 unlocked.")
+    setTier(3)
   }
 
   function handleTier3Submit(event) {
@@ -114,7 +167,10 @@ function Challenge() {
           previousScore + challenge.tier3.points
       )
 
-      setResult("Excellent. Challenge completed!")
+      setResult(
+        "Excellent. Challenge completed!"
+      )
+
       setTier(4)
     } else {
       setResult(
@@ -124,7 +180,7 @@ function Challenge() {
   }
 
   function handleNextChallenge() {
-    if (challengeIndex < challenges.length - 1) {
+    if (challengeIndex < apiChallenges.length - 1) {
       setChallengeIndex(
         (previousIndex) => previousIndex + 1
       )
@@ -133,6 +189,7 @@ function Challenge() {
       setAnswer("")
       setTier2Explanation("")
       setTier2Fix("")
+      setTier2Step(1)
       setTier3Answer("")
       setResult(null)
     }
@@ -159,7 +216,7 @@ function Challenge() {
             {String(challenge.id).padStart(2, "0")}
             <span>
               {" "}
-              / {String(challenges.length).padStart(2, "0")}
+              / {String(apiChallenges.length).padStart(2, "0")}
             </span>
           </h1>
         </div>
@@ -187,7 +244,11 @@ function Challenge() {
       </section>
 
       <div className="tier-progress">
-        <div className={tier >= 1 ? "tier active" : "tier"}>
+        <div
+          className={
+            tier >= 1 ? "tier active" : "tier"
+          }
+        >
           <span>01</span>
 
           <div>
@@ -198,7 +259,11 @@ function Challenge() {
 
         <div className="progress-line" />
 
-        <div className={tier >= 2 ? "tier active" : "tier"}>
+        <div
+          className={
+            tier >= 2 ? "tier active" : "tier"
+          }
+        >
           <span>02</span>
 
           <div>
@@ -209,7 +274,11 @@ function Challenge() {
 
         <div className="progress-line" />
 
-        <div className={tier >= 3 ? "tier active" : "tier"}>
+        <div
+          className={
+            tier >= 3 ? "tier active" : "tier"
+          }
+        >
           <span>03</span>
 
           <div>
@@ -289,45 +358,70 @@ function Challenge() {
               TIER 02
             </span>
 
-            <h3>
-              Explain the vulnerability and fix
-            </h3>
+            {tier2Step === 1 && (
+              <>
+                <h3>
+                  Explain the vulnerability
+                </h3>
 
-            <p className="hint">
-              Explain why the vulnerability exists and
-              describe a secure solution.
-            </p>
+                <p className="hint">
+                  Explain why this code is vulnerable.
+                </p>
 
-            <label>
-              Why is this code vulnerable?
-            </label>
+                <label>
+                  Why is this code vulnerable?
+                </label>
 
-            <textarea
-              value={tier2Explanation}
-              onChange={(event) =>
-                setTier2Explanation(event.target.value)
-              }
-              placeholder="Explain the vulnerability..."
-              rows="5"
-            />
+                <textarea
+                  value={tier2Explanation}
+                  onChange={(event) =>
+                    setTier2Explanation(
+                      event.target.value
+                    )
+                  }
+                  placeholder="Explain the vulnerability..."
+                  rows="6"
+                />
 
-            <label>
-              How would you fix it?
-            </label>
+                <button type="submit">
+                  <span>Continue</span>
+                  <span>→</span>
+                </button>
+              </>
+            )}
 
-            <textarea
-              value={tier2Fix}
-              onChange={(event) =>
-                setTier2Fix(event.target.value)
-              }
-              placeholder="Describe the secure fix..."
-              rows="5"
-            />
+            {tier2Step === 2 && (
+              <>
+                <h3>
+                  Explain the secure fix
+                </h3>
 
-            <button type="submit">
-              <span>Submit Tier 2</span>
-              <span>→</span>
-            </button>
+                <p className="hint">
+                  Describe how you would fix this
+                  vulnerability securely.
+                </p>
+
+                <label>
+                  How would you fix it?
+                </label>
+
+                <textarea
+                  value={tier2Fix}
+                  onChange={(event) =>
+                    setTier2Fix(
+                      event.target.value
+                    )
+                  }
+                  placeholder="Describe the secure fix..."
+                  rows="6"
+                />
+
+                <button type="submit">
+                  <span>Submit Fix</span>
+                  <span>→</span>
+                </button>
+              </>
+            )}
           </form>
         )}
 
@@ -342,8 +436,8 @@ function Challenge() {
             </h3>
 
             <p className="hint">
-              Security problems often hide in unexpected
-              input and boundary conditions.
+              Security problems often hide in
+              unexpected input and boundary conditions.
             </p>
 
             <div className="tier-question">
@@ -353,7 +447,9 @@ function Challenge() {
             <textarea
               value={tier3Answer}
               onChange={(event) =>
-                setTier3Answer(event.target.value)
+                setTier3Answer(
+                  event.target.value
+                )
               }
               placeholder="Explain the edge case and validation..."
               rows="6"
@@ -386,7 +482,7 @@ function Challenge() {
             </p>
 
             <div className="final-score">
-              <span>FINAL SCORE</span>
+              <span>CURRENT SCORE</span>
 
               <strong>
                 {score}
@@ -395,18 +491,33 @@ function Challenge() {
             </div>
 
             {challengeIndex <
-              challenges.length - 1 && (
-              <button onClick={handleNextChallenge}>
+              apiChallenges.length - 1 && (
+              <button
+                type="button"
+                onClick={handleNextChallenge}
+              >
                 <span>Next Challenge</span>
                 <span>→</span>
               </button>
             )}
 
             {challengeIndex ===
-              challenges.length - 1 && (
-              <p className="all-complete">
-                All available challenges completed.
-              </p>
+              apiChallenges.length - 1 && (
+              <div className="all-complete">
+                <strong>
+                  All challenges completed.
+                </strong>
+
+                <span>
+                  {apiChallenges.length} /{" "}
+                  {apiChallenges.length} challenges
+                  completed
+                </span>
+
+                <span>
+                  Final Score: {score} / 300
+                </span>
+              </div>
             )}
           </div>
         )}
@@ -421,7 +532,9 @@ function Challenge() {
 
       <footer>
         <span>LOGIC LEAK 2.0</span>
-        <span>SECURE CODE REVIEW TRAINING</span>
+        <span>
+          SECURE CODE REVIEW TRAINING
+        </span>
       </footer>
     </div>
   )
