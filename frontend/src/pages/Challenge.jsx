@@ -26,7 +26,7 @@ function Challenge() {
   const [tier3Answer, setTier3Answer] = useState("")
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/challenges")
+    fetch("https://logic-leak-v2.onrender.com/api/challenges")
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to fetch challenges")
