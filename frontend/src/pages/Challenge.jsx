@@ -12,6 +12,7 @@ function Challenge() {
   const [challengeIndex, setChallengeIndex] = useState(0)
   const [answer, setAnswer] = useState("")
   const [result, setResult] = useState(null)
+  const [resultType, setResultType] = useState("")
   const [tier, setTier] = useState(1)
   const [score, setScore] = useState(0)
   const [apiChallenges, setApiChallenges] = useState([])
@@ -56,13 +57,18 @@ function Challenge() {
 
   const challenge = apiChallenges[challengeIndex]
 
+  function showResult(message, type) {
+    setResult(message)
+    setResultType(type)
+  }
+
   function handleSubmit(event) {
     event.preventDefault()
 
     const normalizedAnswer = answer.trim().toLowerCase()
 
     if (!normalizedAnswer) {
-      setResult("Please enter your finding.")
+      showResult("Please enter your finding.", "error")
       return
     }
 
@@ -75,12 +81,13 @@ function Challenge() {
           previousScore + challenge.tier1.points
       )
 
-      setResult("Correct. Tier 2 unlocked.")
+      showResult("Correct. Tier 2 unlocked.", "success")
       setTier(2)
       setTier2Step(1)
     } else {
-      setResult(
-        "Not quite. Review the code and try again."
+      showResult(
+        "Not quite. Review the code and try again.",
+        "error"
       )
     }
   }
@@ -92,8 +99,9 @@ function Challenge() {
       const explanation = tier2Explanation.trim()
 
       if (!explanation) {
-        setResult(
-          "Please explain why the code is vulnerable."
+        showResult(
+          "Please explain why the code is vulnerable.",
+          "error"
         )
         return
       }
@@ -107,14 +115,16 @@ function Challenge() {
       )
 
       if (!knowsVulnerability) {
-        setResult(
-          "Your explanation does not identify the vulnerability correctly."
+        showResult(
+          "Your explanation does not identify the vulnerability correctly.",
+          "error"
         )
         return
       }
 
-      setResult(
-        "Correct. Now explain how you would fix it."
+      showResult(
+        "Correct. Now explain how you would fix it.",
+        "success"
       )
 
       setTier2Step(2)
@@ -125,8 +135,9 @@ function Challenge() {
     const fix = tier2Fix.trim()
 
     if (!fix) {
-      setResult(
-        "Please describe how you would fix it."
+      showResult(
+        "Please describe how you would fix it.",
+        "error"
       )
       return
     }
@@ -140,8 +151,9 @@ function Challenge() {
     )
 
     if (!knowsSecureFix) {
-      setResult(
-        "Your fix is incomplete. Use a secure database query approach."
+      showResult(
+        "Your fix is incomplete. Use a secure database query approach.",
+        "error"
       )
       return
     }
@@ -151,7 +163,7 @@ function Challenge() {
         previousScore + challenge.tier2.points
     )
 
-    setResult("Correct. Tier 3 unlocked.")
+    showResult("Correct. Tier 3 unlocked.", "success")
     setTier(3)
   }
 
@@ -161,7 +173,7 @@ function Challenge() {
     const normalizedAnswer = tier3Answer.trim()
 
     if (!normalizedAnswer) {
-      setResult("Please enter your answer.")
+      showResult("Please enter your answer.", "error")
       return
     }
 
@@ -179,14 +191,16 @@ function Challenge() {
           previousScore + challenge.tier3.points
       )
 
-      setResult(
-        "Excellent. Challenge completed!"
+      showResult(
+        "Excellent. Challenge completed!",
+        "success"
       )
 
       setTier(4)
     } else {
-      setResult(
-        "Your answer is incomplete. Think about the edge case and validation."
+      showResult(
+        "Your answer is incomplete. Think about the edge case and validation.",
+        "error"
       )
     }
   }
@@ -204,6 +218,7 @@ function Challenge() {
       setTier2Step(1)
       setTier3Answer("")
       setResult(null)
+      setResultType("")
     }
   }
 
@@ -535,7 +550,7 @@ function Challenge() {
         )}
 
         {result && (
-          <div className="result">
+          <div className={`result ${resultType}`}>
             <span>●</span>
             {result}
           </div>

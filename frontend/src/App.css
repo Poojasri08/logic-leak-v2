@@ -439,6 +439,14 @@
   font-size: 12px;
 }
 
+.result.success{
+  border-color: #2ecc71;
+}
+
+.result.error{
+  border-color: #e74c3c;
+}
+
 .result span {
   color: var(--red);
   font-size: 8px;
