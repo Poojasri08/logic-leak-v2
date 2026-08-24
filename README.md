@@ -8,28 +8,36 @@ Players analyze vulnerable code, identify the security flaw, explain the vulnera
 
 ## Features
 
-- 🔍 Vulnerability Identification
+- 🔍 **Vulnerability Identification**
   - Find the security flaw in vulnerable code.
-- 🧠 Explain + Fix
+
+- 🧠 **Explain + Fix**
   - Explain why the vulnerability exists.
   - Describe a secure approach to fixing it.
-- 🎯 Edge Case Challenges
+
+- 🎯 **Edge Case Challenges**
   - Think about unexpected inputs and boundary conditions.
-- 🏆 Scoring System
+
+- 🏆 **Scoring System**
   - Tier 1: 30 points
   - Tier 2: 30 points
   - Tier 3: 40 points
   - 100 points per challenge
-  - 300 points maximum.
-- 🔄 Challenge Navigation
+  - 300 points maximum
+
+- 🔄 **Challenge Navigation**
   - Complete multiple challenges sequentially.
-- 📡 API-Based Challenge Data
+
+- 📡 **API-Based Challenge Data**
   - Challenges are loaded from the backend API.
-- ⚡ Loading & Error Handling
+
+- ⚡ **Loading & Error Handling**
   - Displays appropriate states while loading or when the API is unavailable.
-- ✅ Answer Validation
+
+- ✅ **Answer Validation**
   - Validates vulnerability findings, explanations, fixes, and edge-case answers.
-- 🏁 Completion Screen
+
+- 🏁 **Completion Screen**
   - Displays challenge completion and final score.
 
 ## Challenge Structure
@@ -46,6 +54,20 @@ Each challenge contains three tiers:
 With 3 challenges, the maximum score is:
 
 **300 points**
+
+## Why Logic Leak?
+
+Writing code that works is not the same as writing secure code.
+
+Logic Leak is designed to help users build the habit of questioning code, identifying vulnerabilities, understanding why they occur, and thinking about how they could be exploited or prevented.
+
+The goal is to move from:
+
+**"The code works."**
+
+to:
+
+**"Is the code secure?"**
 
 ## Tech Stack
 
