@@ -16,6 +16,9 @@ function Challenge() {
   const [score, setScore] = useState(0)
   const [apiChallenges, setApiChallenges] = useState([])
 
+  const [loading, setLoading] = useState(true)
+  const [apiError, setApiError] = useState("")
+
   const [tier2Explanation, setTier2Explanation] = useState("")
   const [tier2Fix, setTier2Fix] = useState("")
   const [tier2Step, setTier2Step] = useState(1)
@@ -32,14 +35,23 @@ function Challenge() {
       })
       .then((data) => {
         setApiChallenges(data)
+        setLoading(false)
       })
       .catch((error) => {
         console.error("API error:", error)
+        setApiError(
+          "Unable to load challenges. Please check the server."
+        )
+        setLoading(false)
       })
   }, [])
 
-  if (apiChallenges.length === 0) {
+  if (loading) {
     return <div>Loading challenges...</div>
+  }
+
+  if (apiError) {
+    return <div>{apiError}</div>
   }
 
   const challenge = apiChallenges[challengeIndex]
