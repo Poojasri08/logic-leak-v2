@@ -1,116 +1,89 @@
 # Logic Leak 2.0
 
-A hands-on cybersecurity challenge platform for practicing secure code review.
+> **Can You Spot the Leak?**
 
-## 🎯 What is Logic Leak?
+Logic Leak 2.0 is an interactive cybersecurity challenge platform designed to help users practice secure code review and vulnerability identification.
 
-Logic Leak presents vulnerable code and challenges users to identify security issues, explain the vulnerability, suggest a fix, and handle security edge cases.
+Players analyze vulnerable code, identify the security flaw, explain the vulnerability, propose a secure fix, and handle an edge case.
 
-## 🧩 Challenge Structure
+## Features
+
+- 🔍 Vulnerability Identification
+  - Find the security flaw in vulnerable code.
+- 🧠 Explain + Fix
+  - Explain why the vulnerability exists.
+  - Describe a secure approach to fixing it.
+- 🎯 Edge Case Challenges
+  - Think about unexpected inputs and boundary conditions.
+- 🏆 Scoring System
+  - Tier 1: 30 points
+  - Tier 2: 30 points
+  - Tier 3: 40 points
+  - 100 points per challenge
+  - 300 points maximum.
+- 🔄 Challenge Navigation
+  - Complete multiple challenges sequentially.
+- 📡 API-Based Challenge Data
+  - Challenges are loaded from the backend API.
+- ⚡ Loading & Error Handling
+  - Displays appropriate states while loading or when the API is unavailable.
+- ✅ Answer Validation
+  - Validates vulnerability findings, explanations, fixes, and edge-case answers.
+- 🏁 Completion Screen
+  - Displays challenge completion and final score.
+
+## Challenge Structure
 
 Each challenge contains three tiers:
 
-### Tier 1: Find
+| Tier | Task | Points |
+|---|---|---:|
+| Tier 1 | Identify the vulnerability | 30 |
+| Tier 2 | Explain the vulnerability + secure fix | 30 |
+| Tier 3 | Solve the edge case | 40 |
+| **Total** | **Per challenge** | **100** |
 
-Identify the security vulnerability.
+With 3 challenges, the maximum score is:
 
-30 points
+**300 points**
 
-### Tier 2: Explain + Fix
+## Tech Stack
 
-Explain why the code is vulnerable and describe a secure fix.
+### Frontend
 
-30 points
+- React
+- Vite
+- JavaScript
+- CSS
 
-### Tier 3: Edge Case
+### Backend
 
-Identify a security edge case and explain the required validation.
+- Node.js
+- Express
+- REST API
 
-40 points
+### Development Tools
 
-Maximum score: 100 points per challenge.
+- Git
+- GitHub
+- ESLint
 
-## 🚀 Current Challenges
+## Project Structure
 
-1. Bank Transfer
-2. Product Search
-3. E-commerce Checkout
-
-## 🛠️ Tech Stack
-
-* React
-* Vite
-* JavaScript
-* ESLint
-* Git & GitHub
-
-## ✨ Current Features
-
-* Three cybersecurity challenges
-* Three-tier challenge system
-* Data-driven challenge configuration
-* Keyword-based answer validation
-* Score tracking
-* Challenge progression
-* Next Challenge navigation
-* Input validation
-* Responsive development foundation
-
-## 📁 Project Structure
-
-frontend/
-├── src/
-│   ├── data/
-│   │   └── challenges.js
-│   ├── pages/
-│   │   └── Challenge.jsx
-│   ├── App.jsx
-│   └── main.jsx
-├── public/
-├── package.json
+```text
+logic-leak-v2/
+│
+├── frontend/
+│   ├── src/
+│   ├── public/
+│   ├── package.json
+│   └── vite.config.js
+│
+├── backend/
+│   ├── server.js
+│   ├── challenges.js
+│   └── package.json
+│
+├── docs/
+│
 └── README.md
-
-## 💻 Run Locally
-
-#### Clone the repository:
-
-    git clone https://github.com/Poojasri08/logic-leak-v2.git
-
-#### Move into the frontend directory:
-
-    cd logic-leak-v2/frontend
-
-#### Install dependencies:
-
-    npm install
-
-#### Start the development server:
-
-    npm run dev
-
-#### Run the linter:
-
-    npm run lint
-
-## 🔐 Security Focus
-
-The current challenges focus on identifying common application security problems such as:
-
-* SQL Injection
-* Unsafe input handling
-* Missing validation
-* Secure database query practices
-
-## 📌 Current Status
-
-Logic Leak 2.0 MVP - In Development
-
-The current version focuses on the core challenge gameplay and validation system.
-
-Future development will include backend integration, authentication, persistent progress, submission history, and additional security testing.
-
-## 👤 Author
-
-### Poojasri
-
-GitHub: https://github.com/Poojasri08
