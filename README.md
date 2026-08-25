@@ -40,6 +40,24 @@ Players analyze vulnerable code, identify the security flaw, explain the vulnera
 - 🏁 **Completion Screen**
   - Displays challenge completion and final score.
 
+
+
+  ## 📸 Screenshots
+
+### Landing Page
+
+![Logic Leak 2.0 Landing Page](Screenshots/landing-page.png)
+
+### Challenge Interface
+
+![Logic Leak 2.0 Challenge](Screenshots/challenge.png)
+
+### Completion Screen
+
+![Logic Leak 2.0 Completion Screen](Screenshots/completion.png)
+
+
+
 ## Challenge Structure
 
 Each challenge contains three tiers:
