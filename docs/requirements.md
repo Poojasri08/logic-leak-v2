@@ -108,4 +108,4 @@ Future versions may include:
 - Additional vulnerability categories
 - Difficulty levels
 - Challenge analytics
-- More detailed security explanations
+- More detailed security explanations 
