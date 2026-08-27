@@ -451,7 +451,7 @@ function Challenge() {
         </div>
 
         <div className="score-panel">
-          <span className="label">SCORE</span>
+          <span className="label">TOTAL SCORE</span>
 
           <strong>
             {score}
