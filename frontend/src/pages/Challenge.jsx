@@ -9,7 +9,6 @@ function Challenge() {
   const [resultType, setResultType] = useState("")
   const [tier, setTier] = useState(1)
 
-  // Overall score from backend
   const [score, setScore] = useState(0)
 
   const [apiChallenges, setApiChallenges] = useState([])
@@ -55,7 +54,7 @@ function Challenge() {
       })
   }, [])
 
-  // Load TOTAL score from backend
+  // Load score and restore progress
   useEffect(() => {
     const token = getToken()
 
@@ -76,17 +75,63 @@ function Challenge() {
         return response.json()
       })
       .then((data) => {
-        const total = (data.progress || []).reduce(
+        const progress = data.progress || []
+
+        // Calculate total score
+        const total = progress.reduce(
           (sum, item) => sum + Number(item.score || 0),
           0
         )
 
         setScore(total)
+
+        // Find first incomplete challenge
+        const firstIncompleteIndex = apiChallenges.findIndex(
+          (challenge) => {
+            const item = progress.find(
+              (p) =>
+                Number(p.challenge_id) === Number(challenge.id)
+            )
+
+            return !item || Number(item.completed) !== 1
+          }
+        )
+
+        if (firstIncompleteIndex !== -1) {
+          // Resume at first incomplete challenge
+          setChallengeIndex(firstIncompleteIndex)
+
+          const progressItem = progress.find(
+            (p) =>
+              Number(p.challenge_id) ===
+              Number(apiChallenges[firstIncompleteIndex].id)
+          )
+
+          if (!progressItem) {
+            setTier(1)
+          } else if (
+            Number(progressItem.tier1_completed) !== 1
+          ) {
+            setTier(1)
+          } else if (
+            Number(progressItem.tier2_completed) !== 1
+          ) {
+            setTier(2)
+          } else if (
+            Number(progressItem.tier3_completed) !== 1
+          ) {
+            setTier(3)
+          }
+        } else {
+          // All challenges completed
+          setChallengeIndex(apiChallenges.length - 1)
+          setTier(4)
+        }
       })
       .catch((error) => {
         console.error("Progress error:", error)
       })
-  }, [apiChallenges, challengeIndex])
+  }, [apiChallenges])
 
   if (loading) {
     return (
@@ -133,6 +178,41 @@ function Challenge() {
     }
 
     return false
+  }
+
+  // Load total score from backend
+  async function loadProgress() {
+    const token = getToken()
+
+    if (!token) {
+      return
+    }
+
+    try {
+      const response = await fetch(
+        `${API_URL}/api/progress`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+
+      if (!response.ok) {
+        return
+      }
+
+      const data = await response.json()
+
+      const total = (data.progress || []).reduce(
+        (sum, item) => sum + Number(item.score || 0),
+        0
+      )
+
+      setScore(total)
+    } catch (error) {
+      console.error("Progress error:", error)
+    }
   }
 
   // TIER 1
@@ -186,7 +266,6 @@ function Challenge() {
         setTier(2)
         setTier2Step(1)
 
-        // Reload authoritative backend score
         loadProgress()
       } else {
         showResult(
@@ -285,7 +364,6 @@ function Challenge() {
 
       setTier(3)
 
-      // Reload authoritative backend score
       loadProgress()
     } catch (error) {
       console.error("Tier 2 validation error:", error)
@@ -348,7 +426,6 @@ function Challenge() {
 
         setTier(4)
 
-        // Reload authoritative backend score
         loadProgress()
       } else {
         showResult(
@@ -363,41 +440,6 @@ function Challenge() {
         "Unable to validate your answer. Please try again.",
         "error"
       )
-    }
-  }
-
-  // Load total score from backend
-  async function loadProgress() {
-    const token = getToken()
-
-    if (!token) {
-      return
-    }
-
-    try {
-      const response = await fetch(
-        `${API_URL}/api/progress`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
-
-      if (!response.ok) {
-        return
-      }
-
-      const data = await response.json()
-
-      const total = (data.progress || []).reduce(
-        (sum, item) => sum + Number(item.score || 0),
-        0
-      )
-
-      setScore(total)
-    } catch (error) {
-      console.error("Progress error:", error)
     }
   }
 
@@ -417,8 +459,6 @@ function Challenge() {
       setResult(null)
       setResultType("")
 
-      // Keep overall score.
-      // Do NOT reset score to zero.
       loadProgress()
     }
   }

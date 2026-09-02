@@ -7,3 +7,7 @@ __pycache__/
 .venv/
 *.pyc
 dist/
+# SQLite database files
+*.db
+*.db-shm
+*.db-wal

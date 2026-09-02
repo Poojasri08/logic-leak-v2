@@ -225,7 +225,7 @@ app.post(
     }
 
     // ========================================
-    // GET USER PROGRESS
+    // GET CURRENT CHALLENGE PROGRESS
     // ========================================
 
     const existingProgress = db.prepare(`
@@ -243,6 +243,34 @@ app.post(
       userId,
       challengeId
     )
+
+    // ========================================
+    // SECURITY: CHALLENGE ORDER ENFORCEMENT
+    // ========================================
+
+    if (challengeId > 1) {
+      const previousChallenge = db.prepare(`
+        SELECT completed
+        FROM progress
+        WHERE user_id = ?
+        AND challenge_id = ?
+      `).get(
+        userId,
+        challengeId - 1
+      )
+
+      if (
+        !previousChallenge ||
+        previousChallenge.completed !== 1
+      ) {
+        return res.status(403).json({
+          correct: false,
+          points: 0,
+          message:
+            `Complete Challenge ${challengeId - 1} first`,
+        })
+      }
+    }
 
     // ========================================
     // SECURITY: TIER ORDER ENFORCEMENT
@@ -270,7 +298,8 @@ app.post(
         return res.status(403).json({
           correct: false,
           points: 0,
-          message: "Complete Tier 1 and Tier 2 first",
+          message:
+            "Complete Tier 1 and Tier 2 first",
         })
       }
     }
