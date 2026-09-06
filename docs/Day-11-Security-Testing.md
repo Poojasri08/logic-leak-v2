@@ -1,8 +1,8 @@
-\# Day 11 – Authentication \& Duplicate Reward Testing
+# Day 11 – Authentication & Duplicate Reward Testing
 
 
 
-\## Objective
+## Objective
 
 
 
@@ -10,7 +10,7 @@ Test the authentication and scoring mechanisms of Logic Leak 2.0 and verify that
 
 
 
-\## Tests Performed
+## Tests Performed
 
 
 
@@ -32,7 +32,7 @@ Test the authentication and scoring mechanisms of Logic Leak 2.0 and verify that
 
 
 
-\## Duplicate Reward Test
+## Duplicate Reward Test
 
 
 
@@ -72,11 +72,11 @@ The test was then repeated after restarting the backend. The completion state pe
 
 
 
-\## Security Result
+## Security Result
 
 
 
-\*\*PASS\*\*
+**PASS**
 
 
 
@@ -84,7 +84,7 @@ The current implementation prevents repeated completion of the same Tier 1 chall
 
 
 
-\## Key Learning
+## Key Learning
 
 
 
@@ -92,11 +92,11 @@ Security testing is not limited to checking whether an endpoint works. It also r
 
 
 
-\## Next
+## Next
 
 
 
-Day 12 will focus on \*\*tier access-control testing\*\*, specifically verifying that users cannot bypass Tier 1 and directly access higher-tier rewards.
+Day 12 will focus on **tier access-control testing**, specifically verifying that users cannot bypass Tier 1 and directly access higher-tier rewards.
 
 
 
