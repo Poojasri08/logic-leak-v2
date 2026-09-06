@@ -12,23 +12,14 @@ Test the authentication and scoring mechanisms of Logic Leak 2.0 and verify that
 
 ## Tests Performed
 
-
-
-| Test                                       | Expected Result             | Status |
-
-| ------------------------------------------ | --------------------------- | ------ |
-
-| Request without token                      | HTTP 401                    | ✅ PASS |
-
-| Invalid/expired token                      | HTTP 403                    | ✅ PASS |
-
-| Valid login                                | Valid authentication token  | ✅ PASS |
-
-| Valid token + wrong answer                 | `correct:false`, `points:0` | ✅ PASS |
-
-| Duplicate Tier 1 submission                | No additional points        | ✅ PASS |
-
-| Duplicate submission after backend restart | No additional points        | ✅ PASS |
+| Test | Expected Result | Status |
+|---|---|---|
+| Request without token | HTTP 401 | ✅ PASS |
+| Invalid/expired token | HTTP 403 | ✅ PASS |
+| Valid login | Valid authentication token | ✅ PASS |
+| Valid token + wrong answer | `correct:false`, `points:0` | ✅ PASS |
+| Duplicate Tier 1 submission | No additional points | ✅ PASS |
+| Duplicate after backend restart | No additional points | ✅ PASS |
 
 
 
