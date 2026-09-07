@@ -878,6 +878,34 @@ app.get(
 )
 
 // ========================================
+// SECURITY: GLOBAL ERROR HANDLER
+// ========================================
+
+app.use((error, req, res, next) => {
+  // Handle malformed JSON without exposing
+  // internal stack traces or file paths.
+  if (
+    error instanceof SyntaxError &&
+    error.status === 400 &&
+    "body" in error
+  ) {
+    return res.status(400).json({
+      message: "Invalid JSON payload",
+    })
+  }
+
+  // Log technical details on the server only.
+  console.error(
+    "Unhandled server error:",
+    error
+  )
+
+  return res.status(500).json({
+    message: "Internal server error",
+  })
+})
+
+// ========================================
 // START SERVER
 // ========================================
 
