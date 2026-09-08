@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 
 const API_URL = "http://localhost:5000"
 
-function Challenge() {
+function Challenge({ username,onLogout }) {
   const [challengeIndex, setChallengeIndex] = useState(0)
   const [answer, setAnswer] = useState("")
   const [result, setResult] = useState(null)
@@ -33,7 +33,10 @@ function Challenge() {
     }
   }
 
-  // Load challenges
+  // ========================================
+  // LOAD CHALLENGES
+  // ========================================
+
   useEffect(() => {
     fetch(`${API_URL}/api/challenges`)
       .then((response) => {
@@ -54,7 +57,10 @@ function Challenge() {
       })
   }, [])
 
-  // Load score and restore progress
+  // ========================================
+  // LOAD SCORE AND RESTORE PROGRESS
+  // ========================================
+
   useEffect(() => {
     const token = getToken()
 
@@ -77,7 +83,6 @@ function Challenge() {
       .then((data) => {
         const progress = data.progress || []
 
-        // Calculate total score
         const total = progress.reduce(
           (sum, item) => sum + Number(item.score || 0),
           0
@@ -85,7 +90,6 @@ function Challenge() {
 
         setScore(total)
 
-        // Find first incomplete challenge
         const firstIncompleteIndex = apiChallenges.findIndex(
           (challenge) => {
             const item = progress.find(
@@ -98,7 +102,6 @@ function Challenge() {
         )
 
         if (firstIncompleteIndex !== -1) {
-          // Resume at first incomplete challenge
           setChallengeIndex(firstIncompleteIndex)
 
           const progressItem = progress.find(
@@ -123,7 +126,6 @@ function Challenge() {
             setTier(3)
           }
         } else {
-          // All challenges completed
           setChallengeIndex(apiChallenges.length - 1)
           setTier(4)
         }
@@ -180,7 +182,10 @@ function Challenge() {
     return false
   }
 
-  // Load total score from backend
+  // ========================================
+  // LOAD TOTAL SCORE
+  // ========================================
+
   async function loadProgress() {
     const token = getToken()
 
@@ -215,7 +220,10 @@ function Challenge() {
     }
   }
 
+  // ========================================
   // TIER 1
+  // ========================================
+
   async function handleSubmit(event) {
     event.preventDefault()
 
@@ -283,7 +291,10 @@ function Challenge() {
     }
   }
 
+  // ========================================
   // TIER 2
+  // ========================================
+
   async function handleTier2Submit(event) {
     event.preventDefault()
 
@@ -375,7 +386,10 @@ function Challenge() {
     }
   }
 
+  // ========================================
   // TIER 3
+  // ========================================
+
   async function handleTier3Submit(event) {
     event.preventDefault()
 
@@ -443,7 +457,10 @@ function Challenge() {
     }
   }
 
+  // ========================================
   // NEXT CHALLENGE
+  // ========================================
+
   function handleNextChallenge() {
     if (challengeIndex < apiChallenges.length - 1) {
       setChallengeIndex(
@@ -463,10 +480,15 @@ function Challenge() {
     }
   }
 
+  // ========================================
+  // UI
+  // ========================================
+
   return (
     <div className="challenge-page">
 
       <header className="brand-header">
+
         <div className="brand-text">
           <span className="brand-dot" />
 
@@ -475,9 +497,22 @@ function Challenge() {
             <small>2.0</small>
           </div>
         </div>
+       
+
+        <button
+          type="button"
+          onClick={onLogout}
+          className="logout-button"
+          aria-label="Log out"
+        >
+          <span>↪</span>
+          <span>LOGOUT</span>
+        </button>
+
       </header>
 
       <div className="top-bar">
+
         <div>
           <span className="label">CHALLENGE</span>
 
@@ -491,16 +526,20 @@ function Challenge() {
         </div>
 
         <div className="score-panel">
+
           <span className="label">TOTAL SCORE</span>
 
           <strong>
             {score}
             <small> / 300</small>
           </strong>
+
         </div>
+
       </div>
 
       <section className="challenge-intro">
+
         <span className="difficulty">
           {challenge.difficulty}
         </span>
@@ -510,6 +549,7 @@ function Challenge() {
         {challenge.description && (
           <p>{challenge.description}</p>
         )}
+
       </section>
 
       <div className="tier-progress">
@@ -550,6 +590,7 @@ function Challenge() {
       <section className="code-section">
 
         <div className="code-header">
+
           <div>
             <span className="code-label">
               VULNERABLE CODE
@@ -561,6 +602,7 @@ function Challenge() {
           <span className="code-language">
             JAVASCRIPT
           </span>
+
         </div>
 
         <div className="code-editor">
@@ -580,6 +622,7 @@ function Challenge() {
           </pre>
 
         </div>
+
       </section>
 
       <section className="answer-section">
