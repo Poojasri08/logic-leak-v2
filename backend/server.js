@@ -56,7 +56,32 @@ function authenticateToken(req, res, next) {
         })
       }
 
-      req.user = user
+      console.log("JWT user:", user)
+
+      // ========================================
+      // DAY 14 SECURITY:
+      // VERIFY USER STILL EXISTS
+      // ========================================
+
+      const existingUser = db.prepare(`
+        SELECT id, username
+        FROM users
+        WHERE id = ?
+      `).get(user.userId)
+
+      if (!existingUser) {
+        return res.status(403).json({
+          message: "Authenticated user not found",
+        })
+      }
+
+      // Use the database identity instead of
+      // trusting username data stored in the JWT.
+      req.user = {
+        userId: existingUser.id,
+        username: existingUser.username,
+      }
+
       next()
     }
   )
