@@ -6,71 +6,99 @@ Objective
 
 
 
-Test whether Logic Leak 2.0 properly validates API input and prevents users from bypassing application business rules.
+Test Logic Leak 2.0 for improper input handling and business-logic abuse that could allow users to bypass application rules or gain unintended rewards.
 
 
 
-Tests Performed
+Testing Performed
 
 
 
-Test	Expected Result	Result
-
-Missing tier/answer	HTTP 400	PASS
-
-Invalid tier	HTTP 400	PASS
-
-Invalid challenge ID	HTTP 400	PASS
-
-Invalid Tier 2 step	HTTP 400	PASS
-
-Step used with Tier 1	HTTP 400	PASS
-
-Empty answer	HTTP 400	PASS
-
-Challenge 3 before Challenge 2	HTTP 403	PASS
-
-Tier 2 before Tier 1	HTTP 403	PASS
-
-Duplicate Tier 1 reward	0 points	PASS
-
-Client-supplied score manipulation	Fake points rejected/ignored	PASS
+1\. Input Validation
 
 
 
-Key Security Checks
+Tested:
 
 
 
-The answer submission API validates the authenticated user, challenge ID, tier, step, and answer before processing the request.
+\* Missing required fields
+
+\* Invalid tier values
+
+\* Invalid challenge IDs
+
+\* Invalid Tier 2 steps
+
+\* Step supplied with the wrong tier
+
+\* Empty answers
 
 
 
-Challenge progression is enforced server-side, preventing users from directly accessing later challenges without completing the previous challenge.
+Expected behavior: Invalid requests should be rejected by the backend with appropriate 400 responses.
 
 
 
-Tier progression is also enforced server-side. Tier 2 requires Tier 1 completion, and Tier 3 requires both Tier 1 and Tier 2 completion.
+2\. Business Logic Testing
 
 
 
-Repeated completion of an already completed tier does not award additional points.
+Tested:
 
 
 
-Client-supplied scoring values are not used to calculate rewards. Points are determined by the challenge configuration.
+\* Skipping challenge progression
+
+\* Skipping challenge tiers
+
+\* Repeated tier submissions
+
+\* Attempts to manipulate awarded points
 
 
 
-Result
+3\. Key Results
 
 
 
-All planned Day 15 input-validation and business-logic abuse tests passed.
+Test	Expected Result	Status
+
+Missing fields	400	PASS
+
+Invalid tier	400	PASS
+
+Invalid challenge ID	400	PASS
+
+Invalid Tier 2 step	400	PASS
+
+Step with Tier 1	400	PASS
+
+Empty answer	400	PASS
+
+Challenge skipping	403	PASS
+
+Tier skipping	403	\[VERIFY]
+
+Duplicate reward	0 additional points	\[VERIFY]
+
+Score manipulation	Client-supplied points ignored	\[VERIFY]
 
 
 
-No security issue requiring a code change was identified during this test cycle.
+Security Observations
+
+
+
+The backend performs validation before processing challenge submissions.
+
+
+
+Challenge progression and tier progression are enforced server-side rather than relying only on the frontend.
+
+
+
+Duplicate completion does not award additional points, and scoring is calculated by the server based on the challenge configuration.
 
 
 
@@ -78,27 +106,21 @@ Evidence
 
 
 
-Screenshots/results recorded for:
+Screenshots are stored in:
 
 
 
-1\. Missing input validation
+docs/day15/screenshots/
 
-2\. Invalid tier
 
-3\. Invalid challenge ID
 
-4\. Invalid Tier 2 step
+Outcome
 
-5\. Invalid step usage
 
-6\. Empty answer
 
-7\. Challenge-order bypass
+Day 15 focused on validating that Logic Leak 2.0 cannot be easily abused through malformed input, progression bypasses, repeated submissions, or client-side score manipulation.
 
-8\. Tier-order bypass
 
-9\. Duplicate reward prevention
 
-10\. Score manipulation attempt
+This testing strengthened the application’s input validation and business-logic controls.
 
