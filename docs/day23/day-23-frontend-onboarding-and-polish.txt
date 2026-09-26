@@ -1,0 +1,85 @@
+Day 23 - Frontend Onboarding & Visual Polish
+
+What I worked on
+
+Today I focused on improving the frontend experience of Logic Leak 2.0.
+
+The main goal was to make the platform feel more complete as a cybersecurity learning product, not just a working security application.
+
+1. Added Signup Flow
+
+Previously, users could only log in.
+
+I added a signup page so new learners can create their own account before entering the lab.
+
+Signup features
+
+* Username creation
+* Password creation
+* Password confirmation
+* Minimum 8-character password requirement
+* At least one letter requirement
+* At least one number requirement
+* Password mismatch validation
+* Backend signup API integration
+* Error handling
+* Loading state
+* Back to Login option
+
+The signup page is connected to:
+
+POST /api/auth/signup
+
+2. Improved Login Experience
+
+The login page was also connected to the new signup flow.
+
+Users can now move between:
+
+Login → Create Account → Back to Login
+
+This makes the onboarding flow clearer for new learners.
+
+3. Frontend Visual Polish
+
+I also worked on the visual identity of Logic Leak.
+
+The frontend now uses:
+
+* Black base background
+* Bright red security accents
+* White primary text
+* Red glow effects
+* Red grid patterns
+* Circuit-style decorative elements
+* Glowing status indicators
+* Improved cards and borders
+* More prominent buttons
+* Improved code editor styling
+* Improved tier/progress indicators
+* Responsive styling for smaller screens
+
+The visual direction is intentionally based around a dark security-lab interface.
+
+4. Product Direction
+
+The goal of this work was not only to make the interface look better.
+
+Logic Leak is being developed as a learning platform where the learner follows:
+
+Login → Challenge → Find Leak → Explain → Fix → Earn XP → Progress → Next Challenge
+
+The signup flow and frontend polish make the beginning of this journey clearer and more consistent.
+
+Result
+
+Day 23 improved two important parts of Logic Leak:
+
+1. Onboarding through the new signup flow
+2. Product presentation through frontend visual polish
+
+The core security functionality remains unchanged while the platform becomes more approachable for learners.
+
+Next Step
+
+The next development focus will be improving the learning experience itself, especially progressive hints and challenge interaction based on the observations from user testing.

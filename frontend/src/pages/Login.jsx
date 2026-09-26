@@ -1,6 +1,6 @@
 import { useState } from "react"
 
-function Login({ onLogin }) {
+function Login({ onLogin, onSignup }) {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
@@ -132,6 +132,14 @@ function Login({ onLogin }) {
             </button>
 
           </form>
+
+          <button
+            type="button"
+            className="login-button"
+            onClick={onSignup}
+          >
+            CREATE ACCOUNT
+          </button>
 
           <div className="login-footer">
             <span>AUTHENTICATED ACCESS</span>

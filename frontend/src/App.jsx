@@ -1,12 +1,15 @@
 import { useState } from "react"
 import Challenge from "./pages/Challenge"
 import Login from "./pages/Login"
+import Signup from "./pages/Signup"
 import "./App.css"
 
 function App() {
   const [loggedIn, setLoggedIn] = useState(
     !!localStorage.getItem("logicLeakToken")
   )
+
+  const [showSignup, setShowSignup] = useState(false)
 
   function handleLogin() {
     setLoggedIn(true)
@@ -18,8 +21,26 @@ function App() {
     setLoggedIn(false)
   }
 
+  function handleSignupSuccess() {
+    setShowSignup(false)
+  }
+
   if (!loggedIn) {
-    return <Login onLogin={handleLogin} />
+    if (showSignup) {
+      return (
+        <Signup
+          onSignup={handleSignupSuccess}
+          onBackToLogin={() => setShowSignup(false)}
+        />
+      )
+    }
+
+    return (
+      <Login
+        onLogin={handleLogin}
+        onSignup={() => setShowSignup(true)}
+      />
+    )
   }
 
   return (
