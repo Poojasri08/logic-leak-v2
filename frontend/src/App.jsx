@@ -1,54 +1,86 @@
-import { useState } from "react"
-import Challenge from "./pages/Challenge"
+import { useEffect, useState } from "react"
 import Login from "./pages/Login"
 import Signup from "./pages/Signup"
-import "./App.css"
+import Dashboard from "./pages/Dashboard"
+import Challenge from "./pages/Challenge"
 
 function App() {
-  const [loggedIn, setLoggedIn] = useState(
-    !!localStorage.getItem("logicLeakToken")
-  )
+  const [page, setPage] = useState("login")
+  const [selectedChallenge, setSelectedChallenge] =
+    useState(null)
 
-  const [showSignup, setShowSignup] = useState(false)
+  useEffect(() => {
+    const token =
+      localStorage.getItem("logicLeakToken")
+
+    if (token) {
+      setPage("dashboard")
+    }
+  }, [])
 
   function handleLogin() {
-    setLoggedIn(true)
+    setPage("dashboard")
+  }
+
+  function handleSignup() {
+    setPage("dashboard")
   }
 
   function handleLogout() {
     localStorage.removeItem("logicLeakToken")
     localStorage.removeItem("logicLeakUsername")
-    setLoggedIn(false)
+
+    setSelectedChallenge(null)
+    setPage("login")
   }
 
-  function handleSignupSuccess() {
-    setShowSignup(false)
+  function handleChallenge(challengeId) {
+    setSelectedChallenge(challengeId)
+    setPage("challenge")
   }
 
-  if (!loggedIn) {
-    if (showSignup) {
-      return (
-        <Signup
-          onSignup={handleSignupSuccess}
-          onBackToLogin={() => setShowSignup(false)}
-        />
-      )
-    }
+  function handleDashboard() {
+    setSelectedChallenge(null)
+    setPage("dashboard")
+  }
 
+  if (page === "login") {
     return (
       <Login
         onLogin={handleLogin}
-        onSignup={() => setShowSignup(true)}
+        onSignup={() => setPage("signup")}
       />
     )
   }
 
-  return (
-    <Challenge
-      username={localStorage.getItem("logicLeakUsername")}
-      onLogout={handleLogout}
-    />
-  )
+  if (page === "signup") {
+    return (
+      <Signup
+        onSignup={handleSignup}
+        onLogin={() => setPage("login")}
+      />
+    )
+  }
+
+  if (page === "dashboard") {
+    return (
+      <Dashboard
+        onChallenge={handleChallenge}
+      />
+    )
+  }
+
+  if (page === "challenge") {
+    return (
+      <Challenge
+        challengeId={selectedChallenge}
+        onBack={handleDashboard}
+        onLogout={handleLogout}
+      />
+    )
+  }
+
+  return null
 }
 
 export default App

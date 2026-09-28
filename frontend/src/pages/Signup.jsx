@@ -1,34 +1,17 @@
 import { useState } from "react"
 
-function Signup({ onSignup, onBackToLogin }) {
+function Signup({ onSignup, onLogin }) {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
-
-  const hasMinLength = password.length >= 8
-  const hasLetter = /[A-Za-z]/.test(password)
-  const hasNumber = /[0-9]/.test(password)
 
   async function handleSubmit(event) {
     event.preventDefault()
     setError("")
 
-    const trimmedUsername = username.trim()
-
-    if (!trimmedUsername || !password || !confirmPassword) {
-      setError("Fill in all fields.")
-      return
-    }
-
-    if (!hasMinLength || !hasLetter || !hasNumber) {
-      setError("Password does not meet the requirements.")
-      return
-    }
-
-    if (password !== confirmPassword) {
-      setError("Passwords do not match.")
+    if (!username.trim() || !password) {
+      setError("Enter a username and password.")
       return
     }
 
@@ -43,7 +26,7 @@ function Signup({ onSignup, onBackToLogin }) {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            username: trimmedUsername,
+            username: username.trim(),
             password,
           }),
         }
@@ -55,11 +38,22 @@ function Signup({ onSignup, onBackToLogin }) {
         throw new Error(data.message || "Signup failed.")
       }
 
-      onSignup()
+      if (data.token) {
+        localStorage.setItem("logicLeakToken", data.token)
+      }
+
+      if (data.username) {
+        localStorage.setItem(
+          "logicLeakUsername",
+          data.username
+        )
+      }
+
+      if (onSignup) {
+        onSignup()
+      }
     } catch (error) {
-      setError(
-        error.message || "Unable to connect to server."
-      )
+      setError(error.message || "Unable to connect to server.")
     } finally {
       setLoading(false)
     }
@@ -67,46 +61,43 @@ function Signup({ onSignup, onBackToLogin }) {
 
   return (
     <main className="login-page">
+      <div className="login-pattern" />
 
-      <div className="login-background-grid" />
+      <section className="login-content">
 
-      <section className="login-container">
-
-        <div className="login-brand">
-          <div className="login-logo">L</div>
-
-          <div>
-            <div className="login-brand-name">
-              LOGIC LEAK
-            </div>
-
-            <div className="login-brand-subtitle">
-              CODE SECURITY LAB
-            </div>
+        {/* Logo */}
+        <header className="login-header">
+          <div className="login-logo-mark">
+            L
           </div>
+
+          <div className="login-logo-text">
+            LOGIC LEAK
+          </div>
+        </header>
+
+        {/* Intro */}
+        <div className="login-intro">
+          <h1>Start learning security.</h1>
+
+          <p>
+            Build your security skills by finding,
+            understanding, and fixing vulnerable code.
+          </p>
         </div>
 
+        {/* Signup Card */}
         <div className="login-card">
-
-          <div className="login-status">
-            <span />
-            SYSTEM ONLINE
-          </div>
-
-          <h1>Create account.</h1>
-
-          <p className="login-description">
-            Start your security learning journey.
-            <br />
-            Find the leak. Fix the logic.
-          </p>
 
           <form onSubmit={handleSubmit}>
 
             <div className="login-field">
-              <label>USERNAME</label>
+              <label htmlFor="signup-username">
+                Username
+              </label>
 
               <input
+                id="signup-username"
                 type="text"
                 value={username}
                 onChange={(event) =>
@@ -118,9 +109,12 @@ function Signup({ onSignup, onBackToLogin }) {
             </div>
 
             <div className="login-field">
-              <label>PASSWORD</label>
+              <label htmlFor="signup-password">
+                Password
+              </label>
 
               <input
+                id="signup-password"
                 type="password"
                 value={password}
                 onChange={(event) =>
@@ -129,87 +123,84 @@ function Signup({ onSignup, onBackToLogin }) {
                 placeholder="Create a password"
                 autoComplete="new-password"
               />
-
-              <div className="password-requirements">
-                <div className={hasMinLength ? "valid" : ""}>
-                  {hasMinLength ? "✓" : "○"} At least 8 characters
-                </div>
-
-                <div className={hasLetter ? "valid" : ""}>
-                  {hasLetter ? "✓" : "○"} At least one letter
-                </div>
-
-                <div className={hasNumber ? "valid" : ""}>
-                  {hasNumber ? "✓" : "○"} At least one number
-                </div>
-              </div>
-            </div>
-
-            <div className="login-field">
-              <label>CONFIRM PASSWORD</label>
-
-              <input
-                type="password"
-                value={confirmPassword}
-                onChange={(event) =>
-                  setConfirmPassword(event.target.value)
-                }
-                placeholder="Confirm your password"
-                autoComplete="new-password"
-              />
-
-              {confirmPassword && (
-                <div
-                  className={
-                    password === confirmPassword
-                      ? "password-match valid"
-                      : "password-match"
-                  }
-                >
-                  {password === confirmPassword
-                    ? "✓ Passwords match"
-                    : "Passwords do not match"}
-                </div>
-              )}
             </div>
 
             {error && (
               <div className="login-error">
-                <span>!</span>
                 {error}
               </div>
             )}
 
             <button
-              className="login-button"
               type="submit"
+              className="login-button"
               disabled={loading}
             >
               {loading
-                ? "CREATING ACCOUNT..."
-                : "CREATE ACCOUNT"}
+                ? "Creating account..."
+                : "Create account"}
+
+              {!loading && <span>→</span>}
             </button>
 
           </form>
 
-          <button
-            type="button"
-            className="login-button"
-            onClick={onBackToLogin}
-          >
-            BACK TO LOGIN
-          </button>
+          <div className="login-signup">
+            <span>Already have an account?</span>
 
-          <div className="login-footer">
-            <span>SECURE ACCOUNT CREATION</span>
-            <span>•</span>
-            <span>LOGIC LEAK v2.0</span>
+            <button
+              type="button"
+              onClick={onLogin}
+            >
+              Sign in
+            </button>
           </div>
 
         </div>
 
-      </section>
+        {/* Learning steps */}
+        <div className="login-features">
 
+          <div className="login-feature">
+            <span className="feature-number">
+              01
+            </span>
+
+            <div>
+              <strong>Find</strong>
+              <p>Spot the vulnerability.</p>
+            </div>
+          </div>
+
+          <div className="login-feature">
+            <span className="feature-number">
+              02
+            </span>
+
+            <div>
+              <strong>Understand</strong>
+              <p>Learn why it matters.</p>
+            </div>
+          </div>
+
+          <div className="login-feature">
+            <span className="feature-number">
+              03
+            </span>
+
+            <div>
+              <strong>Fix</strong>
+              <p>Apply the secure solution.</p>
+            </div>
+          </div>
+
+        </div>
+
+        <footer className="login-footer">
+          LOGIC LEAK · INTERACTIVE SECURITY LEARNING
+        </footer>
+
+      </section>
     </main>
   )
 }

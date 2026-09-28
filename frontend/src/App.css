@@ -1,24 +1,18 @@
-/* =========================================================
+/* =========================================
    LOGIC LEAK 2.0
-   VISUAL SYSTEM
-   BLACK + WHITE + BRIGHT RED
-   ========================================================= */
+   LEARNING PRODUCT UI
+========================================= */
 
 * {
   box-sizing: border-box;
 }
 
-html,
-body,
-#root {
-  margin: 0;
-  min-height: 100%;
-  background: #000;
-}
-
 body {
-  background: #000;
-  color: #fff;
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  background: #f7f8fa;
+  color: #17181c;
 }
 
 button,
@@ -27,1581 +21,679 @@ textarea {
   font: inherit;
 }
 
+/* =========================================
+   PAGE
+========================================= */
 
-/* =========================================================
-   LOGIN / SIGNUP BACKGROUND
-   ========================================================= */
-
-.login-page {
-  position: relative;
+.learning-page {
   min-height: 100vh;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  overflow: hidden;
-
   background:
     radial-gradient(
-      circle at 50% 45%,
-      rgba(255, 0, 0, 0.20),
-      transparent 28%
+      circle at 85% 10%,
+      rgba(217, 45, 32, 0.035),
+      transparent 25%
     ),
-    radial-gradient(
-      circle at 8% 10%,
-      rgba(255, 0, 0, 0.16),
-      transparent 22%
-    ),
-    radial-gradient(
-      circle at 92% 90%,
-      rgba(255, 0, 0, 0.13),
-      transparent 22%
-    ),
-    #000;
+    #f7f8fa;
 }
 
+/* =========================================
+   NAVIGATION
+========================================= */
 
-/* =========================================================
-   VISIBLE TECHNICAL GRID
-   ========================================================= */
-
-.login-background-grid {
-  position: absolute;
-  inset: 0;
-
-  background-image:
-    linear-gradient(
-      rgba(255, 0, 0, 0.07) 1px,
-      transparent 1px
-    ),
-    linear-gradient(
-      90deg,
-      rgba(255, 0, 0, 0.07) 1px,
-      transparent 1px
-    );
-
-  background-size: 48px 48px;
-
-  opacity: 0.65;
-
-  pointer-events: none;
-}
-
-
-/* =========================================================
-   RED CIRCUIT PATTERN
-   ========================================================= */
-
-.login-page::before {
-  content: "";
-
-  position: absolute;
-
-  width: 520px;
-  height: 520px;
-
-  left: -220px;
-  top: -160px;
-
-  background:
-    linear-gradient(
-      90deg,
-      transparent 49%,
-      rgba(255, 0, 0, 0.35) 50%,
-      transparent 51%
-    ),
-    linear-gradient(
-      0deg,
-      transparent 49%,
-      rgba(255, 0, 0, 0.35) 50%,
-      transparent 51%
-    );
-
-  background-size: 55px 55px;
-
-  border-radius: 50%;
-
-  opacity: 0.45;
-
-  transform: rotate(12deg);
-
-  box-shadow:
-    0 0 80px rgba(255, 0, 0, 0.15);
-
-  pointer-events: none;
-}
-
-
-/* =========================================================
-   SECOND CIRCUIT AREA
-   ========================================================= */
-
-.login-page::after {
-  content: "";
-
-  position: absolute;
-
-  width: 460px;
-  height: 460px;
-
-  right: -190px;
-  bottom: -150px;
-
-  background:
-    linear-gradient(
-      135deg,
-      transparent 48%,
-      rgba(255, 0, 0, 0.35) 49%,
-      transparent 51%
-    );
-
-  background-size: 42px 42px;
-
-  opacity: 0.4;
-
-  transform: rotate(-8deg);
-
-  pointer-events: none;
-}
-
-
-/* =========================================================
-   LOGIN CONTENT
-   ========================================================= */
-
-.login-container {
-  position: relative;
-  z-index: 5;
-
-  width: min(460px, 92vw);
-
-  display: flex;
-  flex-direction: column;
-
-  padding: 35px 0;
-}
-
-
-/* =========================================================
-   BRAND
-   ========================================================= */
-
-.login-brand {
+.learning-nav {
+  height: 68px;
+  padding: 0 6%;
   display: flex;
   align-items: center;
-  gap: 14px;
-
-  margin-bottom: 28px;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.96);
+  border-bottom: 1px solid #e5e7eb;
 }
 
-.login-logo {
-  width: 52px;
-  height: 52px;
-
+.learning-brand {
   display: flex;
   align-items: center;
-  justify-content: center;
-
-  color: #fff;
-  background: #050505;
-
-  border: 2px solid #ff0000;
-
-  font-size: 24px;
-  font-weight: 900;
-
-  box-shadow:
-    0 0 10px #ff0000,
-    0 0 30px rgba(255, 0, 0, 0.55),
-    inset 0 0 18px rgba(255, 0, 0, 0.18);
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 750;
+  letter-spacing: -0.2px;
 }
 
-.login-brand-name {
-  color: #fff;
-
-  font-size: 23px;
-  font-weight: 900;
-  letter-spacing: 4px;
-
-  text-shadow:
-    0 0 18px rgba(255, 0, 0, 0.25);
-}
-
-.login-brand-subtitle {
-  margin-top: 3px;
-
-  color: #ff0000;
-
-  font-size: 9px;
+.learning-brand-mark {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: #17181c;
+  color: white;
+  font-size: 13px;
   font-weight: 800;
-  letter-spacing: 3px;
 }
 
-
-/* =========================================================
-   LOGIN CARD
-   ========================================================= */
-
-.login-card {
-  position: relative;
-
-  width: 100%;
-
-  padding: 40px;
-
-  background:
-    linear-gradient(
-      145deg,
-      rgba(20, 0, 0, 0.96),
-      rgba(0, 0, 0, 0.98)
-    );
-
-  border: 1px solid rgba(255, 0, 0, 0.35);
-
-  box-shadow:
-    0 0 25px rgba(255, 0, 0, 0.22),
-    0 0 80px rgba(255, 0, 0, 0.12),
-    inset 0 0 50px rgba(255, 0, 0, 0.045);
+.learning-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 24px;
 }
 
-
-/* bright top line */
-
-.login-card::before {
-  content: "";
-
-  position: absolute;
-
-  top: -1px;
-  left: 8%;
-
-  width: 84%;
-  height: 2px;
-
-  background: #ff0000;
-
-  box-shadow:
-    0 0 8px #ff0000,
-    0 0 25px #ff0000;
+.learning-xp {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #6b7280;
+  font-size: 13px;
 }
 
-
-/* corner */
-
-.login-card::after {
-  content: "";
-
-  position: absolute;
-
-  right: -1px;
-  bottom: -1px;
-
-  width: 55px;
-  height: 55px;
-
-  border-right: 2px solid #ff0000;
-  border-bottom: 2px solid #ff0000;
-
-  box-shadow:
-    8px 8px 25px rgba(255, 0, 0, 0.2);
+.learning-xp strong {
+  color: #17181c;
+  font-size: 15px;
 }
 
+.learning-logout {
+  border: 0;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+  font-size: 13px;
+}
 
-/* =========================================================
-   STATUS
-   ========================================================= */
+.learning-logout:hover {
+  color: #17181c;
+}
 
-.login-status {
+/* =========================================
+   LESSON HEADER
+========================================= */
+
+.lesson-header {
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.lesson-header-inner {
+  width: min(1120px, 88%);
+  margin: auto;
+  padding: 48px 0 40px;
+  display: flex;
+  justify-content: space-between;
+  gap: 60px;
+}
+
+.lesson-label {
+  color: #d92d20;
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+}
+
+.lesson-meta {
+  margin-top: 12px;
   display: flex;
   align-items: center;
   gap: 9px;
-
-  margin-bottom: 22px;
-
-  color: #ff0000;
-
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 2px;
-}
-
-.login-status span {
-  width: 8px;
-  height: 8px;
-
-  border-radius: 50%;
-
-  background: #ff0000;
-
-  box-shadow:
-    0 0 8px #ff0000,
-    0 0 20px #ff0000;
-
-  animation: pulseRed 1.8s infinite;
-}
-
-@keyframes pulseRed {
-  0%,
-  100% {
-    opacity: 0.6;
-  }
-
-  50% {
-    opacity: 1;
-
-    box-shadow:
-      0 0 10px #ff0000,
-      0 0 30px #ff0000;
-  }
-}
-
-
-/* =========================================================
-   HEADINGS
-   ========================================================= */
-
-.login-card h1 {
-  margin: 0;
-
-  color: #fff;
-
-  font-size: clamp(30px, 6vw, 40px);
-  line-height: 1.1;
-}
-
-.login-description {
-  margin: 12px 0 32px;
-
-  color: rgba(255, 255, 255, 0.58);
-
-  font-size: 14px;
-  line-height: 1.7;
-}
-
-
-/* =========================================================
-   FORM
-   ========================================================= */
-
-.login-card form {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.login-field {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.login-field label {
-  color: rgba(255, 255, 255, 0.75);
-
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 2px;
-}
-
-.login-field input {
-  width: 100%;
-
-  padding: 15px;
-
-  color: #fff;
-  background: #030303;
-
-  border: 1px solid rgba(255, 255, 255, 0.18);
-
-  outline: none;
-
-  transition: 0.2s ease;
-}
-
-.login-field input::placeholder {
-  color: rgba(255, 255, 255, 0.25);
-}
-
-.login-field input:focus {
-  border-color: #ff0000;
-
-  background: #0a0000;
-
-  box-shadow:
-    0 0 0 1px rgba(255, 0, 0, 0.25),
-    0 0 25px rgba(255, 0, 0, 0.2);
-}
-
-
-/* =========================================================
-   PASSWORD
-   ========================================================= */
-
-.password-requirements {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-
-  margin-top: 3px;
-
-  color: rgba(255, 255, 255, 0.35);
-
-  font-size: 10px;
-}
-
-.password-requirements .valid {
-  color: #ff0000;
-}
-
-.password-match {
-  color: #ff0000;
-
-  font-size: 10px;
-}
-
-.password-match.valid {
-  color: #fff;
-}
-
-
-/* =========================================================
-   ERROR
-   ========================================================= */
-
-.login-error {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-
-  padding: 12px;
-
-  color: #fff;
-
-  background: rgba(255, 0, 0, 0.09);
-
-  border-left: 2px solid #ff0000;
-
-  box-shadow:
-    0 0 20px rgba(255, 0, 0, 0.08);
-
-  font-size: 12px;
-}
-
-.login-error span {
-  width: 19px;
-  height: 19px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  color: #fff;
-  background: #ff0000;
-
-  border-radius: 50%;
-
-  font-size: 11px;
-  font-weight: 900;
-}
-
-
-/* =========================================================
-   BUTTON
-   ========================================================= */
-
-.login-button {
-  width: 100%;
-  min-height: 50px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-
-  color: #fff;
-  background: #ff0000;
-
-  border: 1px solid #ff0000;
-
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 1.5px;
-
-  box-shadow:
-    0 0 15px rgba(255, 0, 0, 0.3),
-    0 0 35px rgba(255, 0, 0, 0.1);
-
-  transition: 0.2s ease;
-}
-
-.login-button:hover {
-  color: #000;
-  background: #fff;
-
-  box-shadow:
-    0 0 20px #ff0000,
-    0 0 45px rgba(255, 0, 0, 0.45);
-
-  transform: translateY(-2px);
-}
-
-.login-button:disabled {
-  opacity: 0.55;
-  transform: none;
-}
-
-.login-card > .login-button {
-  margin-top: 14px;
-
-  color: #fff;
-  background: transparent;
-
-  border-color: rgba(255, 255, 255, 0.25);
-
-  box-shadow: none;
-}
-
-.login-card > .login-button:hover {
-  color: #fff;
-
-  background: rgba(255, 0, 0, 0.1);
-
-  border-color: #ff0000;
-
-  box-shadow:
-    0 0 20px rgba(255, 0, 0, 0.18);
-}
-
-
-/* =========================================================
-   FOOTER
-   ========================================================= */
-
-.login-footer {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-
-  margin-top: 28px;
-
-  color: rgba(255, 255, 255, 0.28);
-
-  font-size: 8px;
-  letter-spacing: 1.5px;
-}
-
-
-/* =========================================================
-   CHALLENGE PAGE
-   ========================================================= */
-
-.challenge-page {
-  position: relative;
-
-  min-height: 100vh;
-
-  padding: 0 7vw 50px;
-
-  overflow: hidden;
-
-  background:
-    radial-gradient(
-      circle at 50% 5%,
-      rgba(255, 0, 0, 0.18),
-      transparent 30%
-    ),
-    radial-gradient(
-      circle at 0% 55%,
-      rgba(255, 0, 0, 0.1),
-      transparent 22%
-    ),
-    radial-gradient(
-      circle at 100% 80%,
-      rgba(255, 0, 0, 0.09),
-      transparent 25%
-    ),
-    #000;
-}
-
-
-/* =========================================================
-   CHALLENGE GRID
-   ========================================================= */
-
-.challenge-page::before {
-  content: "";
-
-  position: fixed;
-  inset: 0;
-
-  background-image:
-    linear-gradient(
-      rgba(255, 0, 0, 0.055) 1px,
-      transparent 1px
-    ),
-    linear-gradient(
-      90deg,
-      rgba(255, 0, 0, 0.055) 1px,
-      transparent 1px
-    );
-
-  background-size: 52px 52px;
-
-  pointer-events: none;
-
-  opacity: 0.75;
-
-  z-index: 0;
-}
-
-
-/* =========================================================
-   CIRCUIT RINGS
-   ========================================================= */
-
-.challenge-page::after {
-  content: "";
-
-  position: fixed;
-
-  right: -120px;
-  top: 180px;
-
-  width: 420px;
-  height: 420px;
-
-  border: 1px solid rgba(255, 0, 0, 0.13);
-
-  border-radius: 50%;
-
-  box-shadow:
-    0 0 0 30px rgba(255, 0, 0, 0.025),
-    0 0 0 60px rgba(255, 0, 0, 0.018),
-    0 0 80px rgba(255, 0, 0, 0.1);
-
-  pointer-events: none;
-
-  z-index: 0;
-}
-
-
-/* =========================================================
-   HEADER
-   ========================================================= */
-
-.brand-header {
-  position: relative;
-  z-index: 3;
-
-  max-width: 1250px;
-
-  margin: auto;
-
-  padding: 28px 0;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  border-bottom: 1px solid rgba(255, 0, 0, 0.2);
-}
-
-.brand-text {
-  display: flex;
-  align-items: center;
-  gap: 11px;
-}
-
-.brand-dot {
-  width: 8px;
-  height: 8px;
-
-  background: #ff0000;
-
-  border-radius: 50%;
-
-  box-shadow:
-    0 0 8px #ff0000,
-    0 0 22px #ff0000;
-
-  animation: pulseRed 1.8s infinite;
-}
-
-.brand-text strong {
-  color: #fff;
-
-  font-size: 15px;
-  letter-spacing: 3px;
-}
-
-.brand-text small {
-  color: #ff0000;
-
-  font-size: 9px;
-}
-
-
-/* =========================================================
-   LOGOUT
-   ========================================================= */
-
-.logout-button {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
-  padding: 9px 13px;
-
-  color: rgba(255, 255, 255, 0.55);
-  background: transparent;
-
-  border: 1px solid rgba(255, 255, 255, 0.14);
-
-  font-size: 9px;
-  letter-spacing: 1.5px;
-
-  transition: 0.2s ease;
-}
-
-.logout-button:hover {
-  color: #fff;
-
-  border-color: #ff0000;
-
-  box-shadow:
-    0 0 18px rgba(255, 0, 0, 0.2);
-}
-
-.logout-button span:first-child {
-  color: #ff0000;
-}
-
-
-/* =========================================================
-   TOP BAR
-   ========================================================= */
-
-.top-bar {
-  position: relative;
-  z-index: 2;
-
-  max-width: 1250px;
-
-  margin: 55px auto 0;
-
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-}
-
-.label {
-  margin-bottom: 7px;
-
-  color: #ff0000;
-
-  font-size: 9px;
-  font-weight: 900;
-  letter-spacing: 2px;
-}
-
-.top-bar h1 {
-  margin: 0;
-
-  color: #fff;
-
-  font-size: clamp(42px, 7vw, 76px);
-  line-height: 0.9;
-  letter-spacing: -4px;
-
-  text-shadow:
-    0 0 25px rgba(255, 0, 0, 0.15);
-}
-
-.top-bar h1 span {
-  color: rgba(255, 255, 255, 0.22);
-
-  font-size: 0.35em;
-}
-
-.score-panel {
-  text-align: right;
-}
-
-.score-panel strong {
-  color: #fff;
-
-  font-size: 32px;
-
-  text-shadow:
-    0 0 18px rgba(255, 0, 0, 0.3);
-}
-
-.score-panel strong small {
-  color: rgba(255, 255, 255, 0.3);
-
-  font-size: 12px;
-}
-
-
-/* =========================================================
-   CHALLENGE INTRO
-   ========================================================= */
-
-.challenge-intro {
-  position: relative;
-  z-index: 2;
-
-  max-width: 1250px;
-
-  margin: 55px auto 35px;
-
-  padding-left: 18px;
-
-  border-left: 3px solid #ff0000;
-
-  box-shadow:
-    -10px 0 25px rgba(255, 0, 0, 0.08);
-}
-
-.difficulty {
-  display: inline-block;
-
-  margin-bottom: 10px;
-  padding: 5px 9px;
-
-  color: #ff0000;
-
-  background: rgba(255, 0, 0, 0.08);
-
-  border: 1px solid rgba(255, 0, 0, 0.35);
-
-  font-size: 8px;
-  font-weight: 900;
-  letter-spacing: 1.5px;
-}
-
-.challenge-intro h2 {
-  margin: 0;
-
-  color: #fff;
-
-  font-size: clamp(28px, 4vw, 44px);
-}
-
-.challenge-intro p {
-  max-width: 700px;
-
-  margin: 12px 0 0;
-
-  color: rgba(255, 255, 255, 0.52);
-
-  font-size: 14px;
-  line-height: 1.7;
-}
-
-
-/* =========================================================
-   TIERS
-   ========================================================= */
-
-.tier-progress {
-  position: relative;
-  z-index: 2;
-
-  max-width: 1250px;
-
-  margin: 0 auto 40px;
-
-  display: flex;
-  align-items: center;
-}
-
-.tier {
-  display: flex;
-  align-items: center;
-  gap: 11px;
-
-  opacity: 0.3;
-
-  transition: 0.25s ease;
-}
-
-.tier.active {
-  opacity: 1;
-}
-
-.tier > span {
-  width: 37px;
-  height: 37px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  background: #050505;
-
-  border: 1px solid rgba(255, 255, 255, 0.16);
-
-  color: rgba(255, 255, 255, 0.5);
-
-  font-size: 9px;
-  font-weight: 900;
-}
-
-.tier.active > span {
-  color: #fff;
-  background: #ff0000;
-
-  border-color: #ff0000;
-
-  box-shadow:
-    0 0 10px #ff0000,
-    0 0 25px rgba(255, 0, 0, 0.4);
-}
-
-.tier strong {
-  color: #fff;
-
-  font-size: 11px;
-}
-
-.tier small {
-  display: block;
-
-  margin-top: 3px;
-
-  color: rgba(255, 255, 255, 0.35);
-
-  font-size: 8px;
-}
-
-.progress-line {
-  flex: 1;
-
-  max-width: 100px;
-
-  height: 1px;
-
-  margin: 0 18px;
-
-  background: linear-gradient(
-    90deg,
-    #ff0000,
-    rgba(255, 0, 0, 0.15)
-  );
-}
-
-
-/* =========================================================
-   CODE SECTION
-   ========================================================= */
-
-.code-section {
-  position: relative;
-  z-index: 2;
-
-  max-width: 1250px;
-
-  margin: 0 auto 35px;
-
-  overflow: hidden;
-
-  background:
-    linear-gradient(
-      135deg,
-      rgba(255, 0, 0, 0.07),
-      #030303 25%
-    );
-
-  border: 1px solid rgba(255, 0, 0, 0.28);
-
-  box-shadow:
-    0 0 30px rgba(255, 0, 0, 0.1),
-    inset 0 0 30px rgba(255, 0, 0, 0.025);
-}
-
-.code-header {
-  position: relative;
-
-  min-height: 58px;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  padding: 0 20px;
-
-  background:
-    linear-gradient(
-      90deg,
-      rgba(255, 0, 0, 0.1),
-      transparent 45%
-    );
-
-  border-bottom: 1px solid rgba(255, 0, 0, 0.2);
-}
-
-.code-header > div {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.code-label {
-  color: #ff0000;
-
-  font-size: 8px;
-  font-weight: 900;
-  letter-spacing: 1.5px;
-}
-
-.code-header strong {
-  color: rgba(255, 255, 255, 0.75);
-
-  font-size: 10px;
-}
-
-.code-language {
-  color: rgba(255, 255, 255, 0.3);
-
-  font-size: 8px;
-  letter-spacing: 1.5px;
-}
-
-.code-editor {
-  display: flex;
-
-  min-height: 270px;
-
-  overflow-x: auto;
-}
-
-.line-numbers {
-  width: 55px;
-
-  flex-shrink: 0;
-
-  display: flex;
-  flex-direction: column;
-
-  padding: 22px 12px;
-
-  color: rgba(255, 0, 0, 0.45);
-
-  background: rgba(255, 0, 0, 0.035);
-
-  border-right: 1px solid rgba(255, 0, 0, 0.12);
-
-  font-family: monospace;
-  font-size: 11px;
-  line-height: 1.8;
-
-  text-align: right;
-}
-
-.code-editor pre {
-  margin: 0;
-
-  padding: 22px;
-
-  color: rgba(255, 255, 255, 0.82);
-
-  font-family: monospace;
-  font-size: 12px;
-  line-height: 1.8;
-
-  white-space: pre;
-}
-
-
-/* =========================================================
-   ANSWER SECTION
-   ========================================================= */
-
-.answer-section {
-  position: relative;
-  z-index: 2;
-
-  max-width: 1250px;
-
-  margin: auto;
-
-  padding: 35px;
-
-  background:
-    linear-gradient(
-      145deg,
-      rgba(255, 0, 0, 0.06),
-      rgba(0, 0, 0, 0.98) 35%
-    );
-
-  border: 1px solid rgba(255, 0, 0, 0.22);
-
-  box-shadow:
-    0 0 35px rgba(255, 0, 0, 0.07);
-}
-
-.answer-section::before {
-  content: "";
-
-  position: absolute;
-
-  top: -1px;
-  left: 30px;
-
-  width: 120px;
-  height: 2px;
-
-  background: #ff0000;
-
-  box-shadow:
-    0 0 10px #ff0000,
-    0 0 25px #ff0000;
-}
-
-.question-number {
-  display: block;
-
-  margin-bottom: 9px;
-
-  color: #ff0000;
-
-  font-size: 9px;
-  font-weight: 900;
-  letter-spacing: 2px;
-}
-
-.answer-section h3 {
-  margin: 0;
-
-  color: #fff;
-
-  font-size: 25px;
-}
-
-.hint {
-  margin: 9px 0 22px;
-
-  color: rgba(255, 255, 255, 0.5);
-
+  color: #6b7280;
   font-size: 13px;
+}
+
+.lesson-header h1 {
+  margin: 8px 0 8px;
+  font-size: clamp(30px, 4vw, 42px);
+  line-height: 1.08;
+  letter-spacing: -1.4px;
+}
+
+.lesson-header p {
+  margin: 0;
+  max-width: 540px;
+  color: #6b7280;
+  font-size: 15px;
   line-height: 1.6;
 }
 
-.answer-section label {
+.lesson-progress {
+  width: 190px;
+  align-self: flex-end;
+}
+
+.lesson-progress > span {
   display: block;
-
   margin-bottom: 8px;
-
-  color: rgba(255, 255, 255, 0.65);
-
-  font-size: 10px;
-  letter-spacing: 1px;
+  color: #6b7280;
+  font-size: 12px;
+  text-align: right;
 }
 
-.answer-section input,
-.answer-section textarea {
+.lesson-progress-track {
   width: 100%;
-
-  padding: 15px;
-
-  color: #fff;
-  background: #030303;
-
-  border: 1px solid rgba(255, 255, 255, 0.16);
-
-  outline: none;
-
-  transition: 0.2s ease;
+  height: 6px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: #e5e7eb;
 }
 
-.answer-section input:focus,
-.answer-section textarea:focus {
-  border-color: #ff0000;
-
-  background: #080000;
-
-  box-shadow:
-    0 0 0 1px rgba(255, 0, 0, 0.2),
-    0 0 25px rgba(255, 0, 0, 0.16);
+.lesson-progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: #d92d20;
+  transition: width 0.3s ease;
 }
 
-.answer-section input::placeholder,
-.answer-section textarea::placeholder {
-  color: rgba(255, 255, 255, 0.22);
-}
+/* =========================================
+   LEARNING PATH
+========================================= */
 
-
-/* =========================================================
-   SUBMIT
-   ========================================================= */
-
-.answer-section form > button,
-.completion button {
-  min-width: 170px;
-
-  margin-top: 18px;
-  padding: 13px 18px;
-
+.learning-path {
+  width: min(1120px, 88%);
+  margin: 0 auto;
+  padding: 25px 0;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-
-  color: #fff;
-  background: #ff0000;
-
-  border: 1px solid #ff0000;
-
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 1px;
-
-  box-shadow:
-    0 0 15px rgba(255, 0, 0, 0.3);
-
-  transition: 0.2s ease;
 }
 
-.answer-section form > button:hover,
-.completion button:hover {
-  color: #000;
-  background: #fff;
-
-  box-shadow:
-    0 0 25px #ff0000,
-    0 0 45px rgba(255, 0, 0, 0.4);
-
-  transform: translateY(-2px);
-}
-
-
-/* =========================================================
-   TIER QUESTION
-   ========================================================= */
-
-.tier-question {
-  margin: 18px 0;
-
-  padding: 18px;
-
-  color: rgba(255, 255, 255, 0.8);
-
-  background: rgba(255, 0, 0, 0.05);
-
-  border-left: 2px solid #ff0000;
-
-  box-shadow:
-    -8px 0 20px rgba(255, 0, 0, 0.06);
-
-  font-size: 14px;
-  line-height: 1.7;
-}
-
-
-/* =========================================================
-   RESULT
-   ========================================================= */
-
-.result {
-  margin-top: 22px;
-
-  padding: 14px 16px;
-
+.path-step {
   display: flex;
   align-items: center;
   gap: 10px;
+  opacity: 0.45;
+}
 
+.path-step.active {
+  opacity: 1;
+}
+
+.path-step > span {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #d1d5db;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #6b7280;
   font-size: 12px;
+  font-weight: 700;
 }
 
-.result.success {
-  background: rgba(255, 0, 0, 0.1);
-
-  border: 1px solid rgba(255, 0, 0, 0.35);
-
-  box-shadow:
-    0 0 20px rgba(255, 0, 0, 0.08);
+.path-step.active > span {
+  border-color: #d92d20;
+  background: #fff1f0;
+  color: #d92d20;
 }
 
-.result.success span {
-  color: #ff0000;
+.path-step strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
 }
 
-.result.error {
-  background: rgba(255, 255, 255, 0.035);
-
-  border: 1px solid rgba(255, 255, 255, 0.12);
+.path-step small {
+  display: block;
+  margin-top: 2px;
+  color: #9ca3af;
+  font-size: 11px;
 }
 
-.result.error span {
-  color: #ff0000;
+.path-connector {
+  flex: 1;
+  height: 1px;
+  margin: 0 18px;
+  background: #e5e7eb;
 }
 
+/* =========================================
+   MAIN CONTENT
+========================================= */
 
-/* =========================================================
-   COMPLETION
-   ========================================================= */
+.lesson-content {
+  width: min(1120px, 88%);
+  margin: 0 auto;
+  padding-bottom: 70px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(360px, 0.9fr);
+  gap: 24px;
+  align-items: start;
+}
 
-.completion-icon {
-  width: 60px;
-  height: 60px;
+/* =========================================
+   CODE CARD
+========================================= */
 
-  margin-bottom: 22px;
+.lesson-code-card,
+.lesson-task-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  box-shadow: 0 4px 18px rgba(23, 24, 28, 0.035);
+}
 
+.lesson-code-card {
+  overflow: hidden;
+}
+
+.lesson-card-header {
+  min-height: 62px;
+  padding: 0 20px;
   display: flex;
   align-items: center;
-  justify-content: center;
-
-  color: #fff;
-  background: #ff0000;
-
-  border-radius: 50%;
-
-  font-size: 25px;
-
-  box-shadow:
-    0 0 15px #ff0000,
-    0 0 40px rgba(255, 0, 0, 0.4);
+  justify-content: space-between;
+  border-bottom: 1px solid #e5e7eb;
 }
 
-.completion h3 {
-  margin: 0;
-
-  color: #fff;
-
-  font-size: 28px;
+.lesson-card-header > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.completion p {
-  color: rgba(255, 255, 255, 0.45);
+.lesson-card-header span:first-child {
+  color: #6b7280;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
 
+.lesson-card-header strong {
   font-size: 13px;
 }
 
-.final-score {
-  margin-top: 25px;
-  padding: 18px;
+.language-tag {
+  padding: 5px 8px;
+  border-radius: 5px;
+  background: #f3f4f6;
+  color: #6b7280;
+  font-size: 10px;
+  font-weight: 700;
+}
 
+.code-window {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  background: rgba(255, 0, 0, 0.06);
-
-  border: 1px solid rgba(255, 0, 0, 0.25);
+  min-height: 390px;
+  overflow-x: auto;
+  background: #202124;
 }
 
-.final-score span {
-  color: rgba(255, 255, 255, 0.4);
-
-  font-size: 9px;
-  letter-spacing: 1.5px;
-}
-
-.final-score strong {
-  color: #fff;
-
-  font-size: 24px;
-}
-
-.final-score small {
-  color: rgba(255, 255, 255, 0.3);
-
-  font-size: 11px;
-}
-
-.all-complete {
-  margin-top: 20px;
-
-  padding: 18px;
-
+.code-lines {
+  flex: 0 0 48px;
+  padding: 22px 12px;
   display: flex;
   flex-direction: column;
-  gap: 7px;
-
-  background: rgba(255, 0, 0, 0.04);
-
-  border-left: 2px solid #ff0000;
+  align-items: flex-end;
+  background: #1b1c1e;
+  color: #70747b;
+  font-family: "JetBrains Mono", Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.8;
+  user-select: none;
 }
 
-.all-complete strong {
-  color: #fff;
+.code-window pre {
+  margin: 0;
+  padding: 22px 22px;
+  color: #f5f5f5;
+  font-family: "JetBrains Mono", Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.8;
+  white-space: pre;
 }
 
-.all-complete span {
-  color: rgba(255, 255, 255, 0.4);
+/* =========================================
+   TASK CARD
+========================================= */
 
+.lesson-task-card {
+  padding: 30px;
+  position: sticky;
+  top: 20px;
+}
+
+.task-step {
+  display: inline-block;
+  color: #d92d20;
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.07em;
+}
+
+.lesson-task-card h2 {
+  margin: 10px 0 9px;
+  font-size: 25px;
+  line-height: 1.2;
+  letter-spacing: -0.6px;
+}
+
+.task-description {
+  margin: 0 0 22px;
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.lesson-task-card input,
+.lesson-task-card textarea {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 9px;
+  outline: none;
+  background: #ffffff;
+  color: #17181c;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.lesson-task-card input {
+  height: 48px;
+  padding: 0 14px;
+}
+
+.lesson-task-card textarea {
+  min-height: 150px;
+  padding: 13px 14px;
+  resize: vertical;
+  line-height: 1.55;
+}
+
+.lesson-task-card input:focus,
+.lesson-task-card textarea:focus {
+  border-color: #d92d20;
+  box-shadow: 0 0 0 3px rgba(217, 45, 32, 0.08);
+}
+
+.lesson-task-card input::placeholder,
+.lesson-task-card textarea::placeholder {
+  color: #9ca3af;
+}
+
+/* =========================================
+   ACTION
+========================================= */
+
+.task-actions {
+  margin-top: 16px;
+}
+
+.primary-action {
+  min-height: 46px;
+  width: 100%;
+  padding: 0 17px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 0;
+  border-radius: 8px;
+  background: #d92d20;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  transition:
+    background 0.15s ease,
+    transform 0.15s ease;
+}
+
+.primary-action:hover {
+  background: #b42318;
+}
+
+.primary-action:active {
+  transform: translateY(1px);
+}
+
+.primary-action span {
+  font-size: 17px;
+}
+
+/* =========================================
+   HINT
+========================================= */
+
+.learning-hint {
+  margin-top: 20px;
+  padding: 15px;
+  border: 1px solid #f0d6d3;
+  border-radius: 9px;
+  background: #fffafa;
+}
+
+.learning-hint > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.learning-hint strong {
+  font-size: 13px;
+}
+
+.learning-hint > div span {
+  color: #9ca3af;
   font-size: 11px;
 }
 
+.learning-hint p {
+  margin: 11px 0 0;
+  color: #6b7280;
+  font-size: 13px;
+  line-height: 1.55;
+}
 
-/* =========================================================
-   FOOTER
-   ========================================================= */
+.hint-action {
+  margin-top: 11px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #d92d20;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+}
 
-.challenge-page footer {
-  position: relative;
-  z-index: 2;
+/* =========================================
+   RESULT
+========================================= */
 
-  max-width: 1250px;
-
-  margin: 35px auto 0;
-  padding-top: 20px;
-
+.learning-result {
+  margin-top: 22px;
+  padding: 13px 14px;
   display: flex;
-  justify-content: space-between;
-
-  color: rgba(255, 255, 255, 0.22);
-
-  border-top: 1px solid rgba(255, 0, 0, 0.15);
-
-  font-size: 8px;
-  letter-spacing: 1.5px;
+  align-items: flex-start;
+  gap: 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.5;
 }
 
+.learning-result p {
+  margin: 0;
+}
 
-/* =========================================================
+.learning-result.success {
+  background: #eef8f1;
+  color: #166534;
+}
+
+.learning-result.error {
+  background: #fff1f0;
+  color: #b42318;
+}
+
+.learning-result > span {
+  flex: 0 0 auto;
+  font-weight: 800;
+}
+
+/* =========================================
+   COMPLETION
+========================================= */
+
+.lesson-complete {
+  text-align: center;
+}
+
+.complete-mark {
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 20px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #eef8f1;
+  color: #16803c;
+  font-size: 25px;
+  font-weight: 800;
+}
+
+.lesson-complete h2 {
+  margin-top: 10px;
+}
+
+.lesson-complete > p {
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.earned-xp {
+  margin: 25px 0;
+  padding: 17px;
+  border-radius: 10px;
+  background: #f7f8fa;
+}
+
+.earned-xp span {
+  display: block;
+  color: #6b7280;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.earned-xp strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 28px;
+}
+
+.course-complete {
+  padding: 18px;
+  border-radius: 10px;
+  background: #f7f8fa;
+}
+
+.course-complete strong,
+.course-complete span {
+  display: block;
+}
+
+.course-complete strong {
+  font-size: 14px;
+}
+
+.course-complete span {
+  margin-top: 5px;
+  color: #6b7280;
+  font-size: 12px;
+}
+
+/* =========================================
+   LOADING / ERROR
+========================================= */
+
+.learning-loading,
+.learning-error {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.learning-error {
+  color: #b42318;
+}
+
+/* =========================================
    RESPONSIVE
-   ========================================================= */
+========================================= */
 
-@media (max-width: 800px) {
-
-  .challenge-page {
-    padding: 0 20px 35px;
-  }
-
-  .brand-header {
-    padding: 20px 0;
-  }
-
-  .top-bar {
-    margin-top: 40px;
-  }
-
-  .challenge-intro {
-    margin-top: 40px;
-  }
-
-  .tier-progress {
-    align-items: flex-start;
-  }
-
-  .tier {
+@media (max-width: 900px) {
+  .lesson-header-inner {
     flex-direction: column;
-    align-items: flex-start;
+    gap: 28px;
   }
 
-  .tier > div {
-    display: none;
+  .lesson-progress {
+    width: 100%;
   }
 
-  .progress-line {
-    margin-top: 17px;
-  }
-
-  .answer-section {
-    padding: 25px;
-  }
-
-  .code-editor {
-    min-height: 220px;
-  }
-}
-
-
-@media (max-width: 600px) {
-
-  .login-card {
-    padding: 28px 22px;
-  }
-
-  .login-brand-name {
-    font-size: 19px;
-  }
-
-  .top-bar {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 25px;
-  }
-
-  .score-panel {
+  .lesson-progress > span {
     text-align: left;
   }
 
-  .tier-progress {
-    margin-bottom: 30px;
+  .lesson-content {
+    grid-template-columns: 1fr;
   }
 
-  .progress-line {
-    margin-left: 8px;
-    margin-right: 8px;
-  }
-
-  .answer-section {
-    padding: 22px 18px;
-  }
-
-  .code-header {
-    padding: 0 14px;
-  }
-
-  .code-header > div {
-    gap: 8px;
-  }
-
-  .code-language {
-    display: none;
-  }
-
-  .line-numbers {
-    width: 42px;
-    padding-left: 6px;
-    padding-right: 7px;
-  }
-
-  .code-editor pre {
-    padding: 18px 14px;
-
-    font-size: 10px;
-  }
-
-  .challenge-page footer {
-    flex-direction: column;
-    gap: 8px;
+  .lesson-task-card {
+    position: static;
   }
 }
 
-
-@media (max-width: 420px) {
-
-  .login-container {
-    width: 94vw;
+@media (max-width: 650px) {
+  .learning-nav {
+    padding: 0 20px;
   }
 
-  .login-card {
-    padding: 25px 18px;
+  .learning-nav-right {
+    gap: 14px;
   }
 
-  .login-footer {
-    flex-wrap: wrap;
+  .learning-xp {
+    display: none;
   }
 
-  .top-bar h1 {
-    font-size: 50px;
+  .lesson-header-inner,
+  .learning-path,
+  .lesson-content {
+    width: calc(100% - 32px);
   }
 
-  .tier > span {
-    width: 31px;
-    height: 31px;
+  .lesson-header-inner {
+    padding: 34px 0;
   }
 
-  .progress-line {
-    min-width: 15px;
+  .lesson-header h1 {
+    font-size: 32px;
+  }
 
-    margin-left: 5px;
-    margin-right: 5px;
+  .learning-path {
+    overflow-x: auto;
+    padding: 20px 0;
+  }
+
+  .path-step {
+    flex: 0 0 auto;
+  }
+
+  .path-step small {
+    display: none;
+  }
+
+  .path-connector {
+    min-width: 30px;
+  }
+
+  .lesson-task-card {
+    padding: 22px;
+  }
+
+  .code-window {
+    min-height: 330px;
+  }
+
+  .code-window pre {
+    font-size: 11px;
   }
 }

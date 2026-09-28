@@ -51,46 +51,40 @@ function Login({ onLogin, onSignup }) {
 
   return (
     <main className="login-page">
+      <div className="login-pattern" />
 
-      <div className="login-background-grid" />
+      <section className="login-content">
 
-      <section className="login-container">
-
-        <div className="login-brand">
-          <div className="login-logo">L</div>
-
-          <div>
-            <div className="login-brand-name">
-              LOGIC LEAK
-            </div>
-
-            <div className="login-brand-subtitle">
-              CODE SECURITY LAB
-            </div>
+        <header className="login-header">
+          <div className="login-logo-mark">
+            L
           </div>
+
+          <div className="login-logo-text">
+            LOGIC LEAK
+          </div>
+        </header>
+
+        <div className="login-intro">
+          <h1>Learn to spot insecure code.</h1>
+
+          <p>
+            Find vulnerabilities, understand why they happen,
+            and learn how to fix them.
+          </p>
         </div>
 
         <div className="login-card">
 
-          <div className="login-status">
-            <span />
-            SYSTEM ONLINE
-          </div>
-
-          <h1>Welcome back.</h1>
-
-          <p className="login-description">
-            Identify the vulnerability.
-            <br />
-            Fix the logic. Secure the code.
-          </p>
-
           <form onSubmit={handleSubmit}>
 
             <div className="login-field">
-              <label>USERNAME</label>
+              <label htmlFor="username">
+                Username
+              </label>
 
               <input
+                id="username"
                 type="text"
                 value={username}
                 onChange={(event) =>
@@ -102,9 +96,12 @@ function Login({ onLogin, onSignup }) {
             </div>
 
             <div className="login-field">
-              <label>PASSWORD</label>
+              <label htmlFor="password">
+                Password
+              </label>
 
               <input
+                id="password"
                 type="password"
                 value={password}
                 onChange={(event) =>
@@ -117,40 +114,73 @@ function Login({ onLogin, onSignup }) {
 
             {error && (
               <div className="login-error">
-                <span>!</span>
                 {error}
               </div>
             )}
 
             <button
-              className="login-button"
               type="submit"
+              className="login-button"
               disabled={loading}
             >
-              {loading ? "AUTHENTICATING..." : "ENTER LAB"}
-              {!loading && <span>→</span>}
+              {loading ? "Signing in..." : "Continue"}
+
+              {!loading && (
+                <span>→</span>
+              )}
             </button>
 
           </form>
 
-          <button
-            type="button"
-            className="login-button"
-            onClick={onSignup}
-          >
-            CREATE ACCOUNT
-          </button>
+          <div className="login-signup">
+            <span>New to Logic Leak?</span>
 
-          <div className="login-footer">
-            <span>AUTHENTICATED ACCESS</span>
-            <span>•</span>
-            <span>LOGIC LEAK v2.0</span>
+            <button
+              type="button"
+              onClick={onSignup}
+            >
+              Create an account
+            </button>
           </div>
 
         </div>
 
-      </section>
+        <div className="login-features">
 
+          <div className="login-feature">
+            <span className="feature-number">01</span>
+
+            <div>
+              <strong>Find</strong>
+              <p>Spot the vulnerability.</p>
+            </div>
+          </div>
+
+          <div className="login-feature">
+            <span className="feature-number">02</span>
+
+            <div>
+              <strong>Understand</strong>
+              <p>Explain why it is dangerous.</p>
+            </div>
+          </div>
+
+          <div className="login-feature">
+            <span className="feature-number">03</span>
+
+            <div>
+              <strong>Fix</strong>
+              <p>Learn the secure solution.</p>
+            </div>
+          </div>
+
+        </div>
+
+        <footer className="login-footer">
+          LOGIC LEAK · INTERACTIVE SECURITY LEARNING
+        </footer>
+
+      </section>
     </main>
   )
 }

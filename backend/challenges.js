@@ -4,6 +4,12 @@ const challenges = [
     title: "Bank Transfer",
     difficulty: "Easy",
 
+    hints: [
+      "Look at how user input is being added to the database query.",
+      "The SQL query is being built by directly joining values into the string.",
+      "Think about SQL Injection and why parameterized queries are safer."
+    ],
+
     code: `function transfer(userId, amount) {
   const query =
     "UPDATE accounts SET balance = balance - " +
@@ -51,6 +57,12 @@ const challenges = [
     title: "Product Search",
     difficulty: "Easy",
 
+    hints: [
+      "Look at how the search term is used inside the SQL query.",
+      "The user's search input is directly inserted into the SQL statement.",
+      "Think about SQL Injection and how parameterized queries can separate data from SQL commands."
+    ],
+
     code: `function searchProducts(searchTerm) {
   const query =
     "SELECT * FROM products WHERE name LIKE '%" +
@@ -96,6 +108,12 @@ const challenges = [
     id: 3,
     title: "E-commerce Checkout",
     difficulty: "Medium",
+
+    hints: [
+      "Look at how the checkout values are inserted into the SQL query.",
+      "User-controlled values are being directly combined with the SQL statement.",
+      "Think about SQL Injection, parameterized queries, and validating the price before creating an order."
+    ],
 
     code: `function checkout(userId, productId, price) {
   const query =

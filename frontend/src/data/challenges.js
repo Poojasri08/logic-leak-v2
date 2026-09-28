@@ -14,6 +14,12 @@ const challenges = [
   return database.query(query);
 }`,
 
+    hints: [
+      "Look at how user input is being added to the database query.",
+      "The SQL query is being built by directly joining values into the string.",
+      "Think about SQL Injection and why parameterized queries are safer."
+    ],
+
     tier1: {
       question: "What security vulnerability exists in this code?",
       answer: "sql injection",
@@ -59,6 +65,12 @@ const challenges = [
 
   return database.query(query);
 }`,
+
+    hints: [
+      "Look at how the search term is used inside the SQL query.",
+      "The user's search input is directly inserted into the SQL statement.",
+      "Think about SQL Injection and how parameterized queries can separate data from SQL commands."
+    ],
 
     tier1: {
       question: "What security vulnerability exists in this code?",
@@ -109,6 +121,12 @@ const challenges = [
 
   return database.query(query);
 }`,
+
+    hints: [
+      "Look at how the checkout values are inserted into the SQL query.",
+      "User-controlled values are being directly combined with the SQL statement.",
+      "Think about SQL Injection, parameterized queries, and validating the price before creating an order."
+    ],
 
     tier1: {
       question: "What security vulnerability exists in this code?",
