@@ -66,10 +66,14 @@ async function request(
     headers.Authorization = `Bearer ${token}`
   }
 
-  if (rawBody !== undefined) {
+  // fetch refuses to send a body with GET or HEAD
+  // ("Request with GET/HEAD method cannot have body").
+  const canHaveBody = method !== "GET" && method !== "HEAD"
+
+  if (canHaveBody && rawBody !== undefined) {
     headers["Content-Type"] = "application/json"
     options.body = rawBody
-  } else if (body !== undefined) {
+  } else if (canHaveBody && body !== undefined) {
     headers["Content-Type"] = "application/json"
     options.body = JSON.stringify(body)
   }
