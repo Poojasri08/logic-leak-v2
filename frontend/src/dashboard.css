@@ -1,0 +1,566 @@
+/* =========================================
+   DASHBOARD + SESSION UI
+   Uses the :root variables from index.css so
+   the later dark-theme pass can retheme from
+   one place.
+========================================= */
+
+/* Notice shown on the login screen
+   (for example "Account created. Please log in.") */
+
+.login-notice {
+  margin-bottom: 16px;
+  padding: 11px 13px;
+
+  border: 1px solid #b7e1c4;
+  border-radius: 8px;
+
+  background: var(--green-soft);
+  color: var(--green);
+
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* =========================================
+   PAGE
+========================================= */
+
+.dashboard-page {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.dashboard-loading,
+.dashboard-empty {
+  display: grid;
+  place-items: center;
+
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.dashboard-loading {
+  min-height: 100vh;
+}
+
+.dashboard-empty {
+  padding: 40px 0;
+}
+
+.dashboard-error {
+  min-height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+
+  padding: 24px;
+  text-align: center;
+}
+
+.dashboard-error p {
+  max-width: 420px;
+  margin: 0 0 4px;
+
+  color: #b42318;
+  font-size: 14px;
+}
+
+.dashboard-error button {
+  min-width: 140px;
+  height: 42px;
+
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+
+  background: var(--surface);
+  color: var(--text);
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.dashboard-error button:first-of-type {
+  border-color: var(--red);
+  background: var(--red);
+  color: #ffffff;
+}
+
+.dashboard-error button:hover {
+  filter: brightness(0.95);
+}
+
+/* =========================================
+   HEADER
+========================================= */
+
+.dashboard-header {
+  min-height: 68px;
+  padding: 0 6%;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  background: rgba(255, 255, 255, 0.96);
+  border-bottom: 1px solid var(--border);
+}
+
+.dashboard-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  font-size: 15px;
+  font-weight: 750;
+  letter-spacing: -0.2px;
+}
+
+.dashboard-logo-mark {
+  width: 30px;
+  height: 30px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 8px;
+  background: #17181c;
+  color: #ffffff;
+
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.dashboard-header-stats {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.dashboard-header-stats > span:first-child {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.dashboard-header-stats button {
+  border: 0;
+  background: transparent;
+
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.dashboard-header-stats button:hover {
+  color: var(--text);
+}
+
+/* =========================================
+   CONTENT
+========================================= */
+
+.dashboard-content {
+  width: min(1120px, 88%);
+  margin: 0 auto;
+  padding: 44px 0 72px;
+}
+
+.dashboard-eyebrow {
+  display: block;
+
+  color: var(--red);
+
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+}
+
+.dashboard-welcome h1 {
+  margin: 8px 0 10px;
+
+  font-size: clamp(28px, 4vw, 40px);
+  line-height: 1.1;
+  letter-spacing: -1.2px;
+}
+
+.dashboard-welcome p {
+  max-width: 540px;
+  margin: 0;
+
+  color: var(--text-secondary);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* =========================================
+   STATS
+========================================= */
+
+.dashboard-stats {
+  margin-top: 32px;
+
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.dashboard-stat-card {
+  padding: 18px 20px;
+
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.dashboard-stat-icon {
+  width: 40px;
+  height: 40px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 10px;
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+}
+
+.dashboard-stat-card strong {
+  display: block;
+
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+.dashboard-stat-card span:last-child {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+/* =========================================
+   SECTIONS
+========================================= */
+
+.dashboard-section {
+  margin-top: 44px;
+}
+
+.dashboard-section-heading {
+  margin-bottom: 18px;
+
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dashboard-section-heading h2 {
+  margin: 6px 0 0;
+
+  font-size: 22px;
+  letter-spacing: -0.5px;
+}
+
+.challenge-count {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+/* =========================================
+   CONTINUE CARD
+========================================= */
+
+.continue-card {
+  padding: 24px;
+
+  display: flex;
+  align-items: center;
+  gap: 24px;
+
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+
+  box-shadow: 0 4px 18px rgba(23, 24, 28, 0.035);
+}
+
+.continue-number {
+  flex: 0 0 auto;
+
+  color: var(--border-strong);
+
+  font-family: "JetBrains Mono", Consolas, monospace;
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.continue-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.continue-info h3 {
+  margin: 6px 0 6px;
+
+  font-size: 20px;
+  letter-spacing: -0.4px;
+}
+
+.continue-info p {
+  margin: 0;
+
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.challenge-difficulty {
+  display: inline-block;
+
+  color: var(--text-secondary);
+
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.continue-progress {
+  margin-top: 16px;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.progress-track {
+  flex: 1;
+  height: 6px;
+
+  overflow: hidden;
+  border-radius: 99px;
+  background: var(--border);
+}
+
+.progress-fill {
+  height: 100%;
+
+  border-radius: inherit;
+  background: var(--red);
+
+  transition: width 0.3s ease;
+}
+
+.continue-progress > span {
+  flex: 0 0 auto;
+
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.continue-button {
+  flex: 0 0 auto;
+  min-height: 46px;
+  padding: 0 20px;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+
+  border: 0;
+  border-radius: 8px;
+
+  background: var(--red);
+  color: #ffffff;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  transition: background 0.15s ease;
+}
+
+.continue-button:hover {
+  background: var(--red-hover);
+}
+
+/* =========================================
+   CHALLENGE GRID
+========================================= */
+
+.challenge-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 18px;
+}
+
+.challenge-card {
+  padding: 22px;
+
+  display: flex;
+  flex-direction: column;
+
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+
+  transition: border-color 0.2s ease;
+}
+
+.challenge-card:hover {
+  border-color: var(--border-strong);
+}
+
+.challenge-card h3 {
+  margin: 6px 0 8px;
+
+  font-size: 18px;
+  letter-spacing: -0.3px;
+}
+
+.challenge-card p {
+  margin: 0 0 16px;
+
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.challenge-card-top {
+  margin-bottom: 12px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.challenge-number {
+  color: var(--text-muted);
+
+  font-family: "JetBrains Mono", Consolas, monospace;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.challenge-check {
+  width: 24px;
+  height: 24px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 50%;
+  background: var(--green-soft);
+  color: var(--green);
+
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.challenge-completed {
+  border-color: #b7e1c4;
+}
+
+.challenge-locked {
+  background: var(--surface-soft);
+}
+
+.challenge-locked h3,
+.challenge-locked .challenge-difficulty,
+.challenge-locked .challenge-number {
+  opacity: 0.55;
+}
+
+.challenge-lock-note {
+  color: var(--text-muted) !important;
+  font-size: 12px !important;
+}
+
+.challenge-card-button {
+  margin-top: auto;
+  min-height: 42px;
+  padding: 0 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+
+  background: var(--surface);
+  color: var(--text);
+
+  font-size: 13px;
+  font-weight: 700;
+
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.challenge-card-button:hover:not(:disabled) {
+  border-color: var(--red);
+  background: var(--red-soft);
+}
+
+.challenge-card-button:disabled {
+  border-color: var(--border);
+  background: var(--surface-soft);
+  color: var(--text-muted);
+}
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 760px) {
+  .dashboard-header {
+    padding: 0 16px;
+  }
+
+  .dashboard-header-stats {
+    gap: 12px;
+  }
+
+  .dashboard-header-stats > span:nth-child(2) {
+    display: none;
+  }
+
+  .dashboard-content {
+    width: calc(100% - 32px);
+    padding: 32px 0 56px;
+  }
+
+  .dashboard-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .continue-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .continue-number {
+    font-size: 30px;
+  }
+
+  .continue-button {
+    justify-content: center;
+  }
+
+  .challenge-grid {
+    grid-template-columns: 1fr;
+  }
+}

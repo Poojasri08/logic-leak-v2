@@ -1,63 +1,89 @@
 import { useEffect, useState } from "react"
+import { apiRequest, isAuthError } from "../api"
 
-function Dashboard({ onChallenge }) {
+function Dashboard({ onChallenge, onLogout, onAuthError }) {
   const [challenges, setChallenges] = useState([])
-  const [progress, setProgress] = useState(null)
+  const [progressRows, setProgressRows] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
+  const [reloadKey, setReloadKey] = useState(0)
 
-  const token = localStorage.getItem("logicLeakToken")
+  const username =
+    localStorage.getItem("logicLeakUsername") || ""
+
+  /* =========================================
+     LOAD CHALLENGES + PROGRESS
+  ========================================= */
 
   useEffect(() => {
-    async function loadDashboard() {
-      try {
-        const headers = {
-          Authorization: `Bearer ${token}`,
-        }
+    let cancelled = false
 
-        const [challengeResponse, progressResponse] =
+    async function loadDashboard() {
+      setLoading(true)
+      setError("")
+
+      try {
+        const [challengeData, progressData] =
           await Promise.all([
-            fetch("http://localhost:5000/api/challenges", {
-              headers,
-            }),
-            fetch("http://localhost:5000/api/progress", {
-              headers,
-            }),
+            apiRequest("/api/challenges"),
+            apiRequest("/api/progress", { auth: true }),
           ])
 
-        if (!challengeResponse.ok) {
-          throw new Error("Unable to load challenges.")
+        if (cancelled) {
+          return
         }
 
-        if (!progressResponse.ok) {
-          throw new Error("Unable to load progress.")
+        if (
+          !Array.isArray(challengeData) ||
+          !Array.isArray(progressData.progress)
+        ) {
+          throw new Error(
+            "The server sent data in an unexpected format."
+          )
         }
 
-        const challengeData =
-          await challengeResponse.json()
-
-        const progressData =
-          await progressResponse.json()
-
-        setChallenges(challengeData.challenges || [])
-        setProgress(progressData)
+        setChallenges(
+          [...challengeData].sort(
+            (a, b) => Number(a.id) - Number(b.id)
+          )
+        )
+        setProgressRows(progressData.progress)
       } catch (error) {
+        if (cancelled) {
+          return
+        }
+
+        if (isAuthError(error)) {
+          onAuthError()
+          return
+        }
+
         setError(
           error.message ||
             "Unable to load your dashboard."
         )
       } finally {
-        setLoading(false)
+        if (!cancelled) {
+          setLoading(false)
+        }
       }
     }
 
     loadDashboard()
-  }, [token])
+
+    return () => {
+      cancelled = true
+    }
+  }, [reloadKey, onAuthError])
+
+  /* =========================================
+     STATES
+  ========================================= */
 
   if (loading) {
     return (
       <main className="dashboard-page">
-        <div className="dashboard-loading">
+        <div className="dashboard-loading" role="status">
           Loading your learning progress...
         </div>
       </main>
@@ -67,32 +93,105 @@ function Dashboard({ onChallenge }) {
   if (error) {
     return (
       <main className="dashboard-page">
-        <div className="dashboard-error">
-          {error}
+        <div className="dashboard-error" role="alert">
+          <p>{error}</p>
+
+          <button
+            type="button"
+            onClick={() =>
+              setReloadKey((count) => count + 1)
+            }
+          >
+            Try again
+          </button>
+
+          <button type="button" onClick={onLogout}>
+            Log out
+          </button>
         </div>
       </main>
     )
   }
 
-  const totalXP = progress?.totalXP || 0
+  /* =========================================
+     DERIVED DATA
+     (display only - the server enforces the
+     real rules on every request)
+  ========================================= */
 
-  const completedChallenges =
-    progress?.completedChallenges || 0
+  const progressById = new Map(
+    progressRows.map((row) => [
+      Number(row.challenge_id),
+      row,
+    ])
+  )
 
-  const currentChallenge =
-    challenges.find(
-      (challenge) =>
-        !progress?.completed?.includes(challenge.id)
-    ) || challenges[0]
+  function isCompleted(challengeId) {
+    const row = progressById.get(Number(challengeId))
 
-  const completionPercentage =
-    challenges.length > 0
-      ? Math.round(
-          (completedChallenges /
-            challenges.length) *
-            100
-        )
-      : 0
+    return Boolean(row) && Number(row.completed) === 1
+  }
+
+  // Mirrors the server rule: challenge N needs N-1 completed.
+  function isLocked(challengeId) {
+    const id = Number(challengeId)
+
+    return id > 1 && !isCompleted(id - 1)
+  }
+
+  function tiersDone(challengeId) {
+    const row = progressById.get(Number(challengeId))
+
+    if (!row) {
+      return 0
+    }
+
+    return [
+      row.tier1_completed,
+      row.tier2_completed,
+      row.tier3_completed,
+    ].filter((value) => Number(value) === 1).length
+  }
+
+  const totalXP = progressRows.reduce(
+    (sum, row) => sum + Number(row.score || 0),
+    0
+  )
+
+  const maxXP = challenges.reduce(
+    (sum, challenge) =>
+      sum +
+      Number(challenge.tier1?.points || 0) +
+      Number(challenge.tier2?.points || 0) +
+      Number(challenge.tier3?.points || 0),
+    0
+  )
+
+  const completedCount = challenges.filter((challenge) =>
+    isCompleted(challenge.id)
+  ).length
+
+  const currentChallenge = challenges.find(
+    (challenge) =>
+      !isCompleted(challenge.id) &&
+      !isLocked(challenge.id)
+  )
+
+  const currentTiersDone = currentChallenge
+    ? tiersDone(currentChallenge.id)
+    : 0
+
+  function handleOpen(challenge) {
+    if (isLocked(challenge.id)) {
+      return
+    }
+
+    onChallenge(challenge.id)
+  }
+
+  /* =========================================
+     RENDER
+  ========================================= */
 
   return (
     <main className="dashboard-page">
@@ -109,23 +208,14 @@ function Dashboard({ onChallenge }) {
           <span>LOGIC LEAK</span>
         </div>
 
-        <nav className="dashboard-nav">
-          <button className="dashboard-nav-active">
-            Learn
-          </button>
-
-          <button>
-            Progress
-          </button>
-
-          <button>
-            Leaderboard
-          </button>
-        </nav>
-
         <div className="dashboard-header-stats">
           <span>⚡ {totalXP} XP</span>
-          <span>🔥 0</span>
+
+          {username && <span>{username}</span>}
+
+          <button type="button" onClick={onLogout}>
+            Log out
+          </button>
         </div>
 
       </header>
@@ -167,19 +257,11 @@ function Dashboard({ onChallenge }) {
             </span>
 
             <div>
-              <strong>{totalXP}</strong>
-              <span>Total XP</span>
-            </div>
-          </div>
+              <strong>
+                {totalXP} / {maxXP}
+              </strong>
 
-          <div className="dashboard-stat-card">
-            <span className="dashboard-stat-icon">
-              🔥
-            </span>
-
-            <div>
-              <strong>0</strong>
-              <span>Day streak</span>
+              <span>XP earned</span>
             </div>
           </div>
 
@@ -190,8 +272,7 @@ function Dashboard({ onChallenge }) {
 
             <div>
               <strong>
-                {completedChallenges} /{" "}
-                {challenges.length}
+                {completedCount} / {challenges.length}
               </strong>
 
               <span>Challenges completed</span>
@@ -199,6 +280,12 @@ function Dashboard({ onChallenge }) {
           </div>
 
         </section>
+
+        {challenges.length === 0 && (
+          <div className="dashboard-empty" role="status">
+            No challenges are available right now.
+          </div>
+        )}
 
         {/* Continue Learning */}
 
@@ -238,8 +325,8 @@ function Dashboard({ onChallenge }) {
                 </h3>
 
                 <p>
-                  Find the vulnerability and
-                  work through the security fix.
+                  {currentChallenge.description ||
+                    "Find the vulnerability and work through the security fix."}
                 </p>
 
                 <div className="continue-progress">
@@ -248,13 +335,15 @@ function Dashboard({ onChallenge }) {
                     <div
                       className="progress-fill"
                       style={{
-                        width: `${completionPercentage}%`,
+                        width: `${Math.round(
+                          (currentTiersDone / 3) * 100
+                        )}%`,
                       }}
                     />
                   </div>
 
                   <span>
-                    {completionPercentage}%
+                    {currentTiersDone} of 3 steps complete
                   </span>
 
                 </div>
@@ -262,12 +351,15 @@ function Dashboard({ onChallenge }) {
               </div>
 
               <button
+                type="button"
                 className="continue-button"
                 onClick={() =>
-                  onChallenge(currentChallenge.id)
+                  handleOpen(currentChallenge)
                 }
               >
-                Continue
+                {currentTiersDone > 0
+                  ? "Continue"
+                  : "Start"}
                 <span>→</span>
               </button>
 
@@ -276,98 +368,130 @@ function Dashboard({ onChallenge }) {
           </section>
         )}
 
+        {challenges.length > 0 && !currentChallenge && (
+          <section className="dashboard-section">
+            <div className="continue-card" role="status">
+              <div className="continue-info">
+                <h3>All challenges completed</h3>
+
+                <p>
+                  You finished every challenge. You can
+                  review any of them below.
+                </p>
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* Challenges */}
 
-        <section className="dashboard-section">
+        {challenges.length > 0 && (
+          <section className="dashboard-section">
 
-          <div className="dashboard-section-heading">
+            <div className="dashboard-section-heading">
 
-            <div>
-              <span className="dashboard-eyebrow">
-                CHALLENGES
+              <div>
+                <span className="dashboard-eyebrow">
+                  CHALLENGES
+                </span>
+
+                <h2>
+                  Practice security
+                </h2>
+              </div>
+
+              <span className="challenge-count">
+                {challenges.length} challenges
               </span>
 
-              <h2>
-                Practice security
-              </h2>
             </div>
 
-            <span className="challenge-count">
-              {challenges.length} challenges
-            </span>
+            <div className="challenge-grid">
 
-          </div>
+              {challenges.map((challenge) => {
+                const completed = isCompleted(challenge.id)
+                const locked = isLocked(challenge.id)
+                const started =
+                  !completed && tiersDone(challenge.id) > 0
 
-          <div className="challenge-grid">
+                let buttonLabel = "Start challenge"
 
-            {challenges.map((challenge) => {
+                if (completed) {
+                  buttonLabel = "Review challenge"
+                } else if (locked) {
+                  buttonLabel = "Locked"
+                } else if (started) {
+                  buttonLabel = "Continue challenge"
+                }
 
-              const completed =
-                progress?.completed?.includes(
-                  challenge.id
-                )
+                return (
+                  <article
+                    className={[
+                      "challenge-card",
+                      completed ? "challenge-completed" : "",
+                      locked ? "challenge-locked" : "",
+                    ]
+                      .filter(Boolean)
+                      .join(" ")}
+                    key={challenge.id}
+                  >
 
-              return (
-                <article
-                  className={`challenge-card ${
-                    completed
-                      ? "challenge-completed"
-                      : ""
-                  }`}
-                  key={challenge.id}
-                >
+                    <div className="challenge-card-top">
 
-                  <div className="challenge-card-top">
+                      <span className="challenge-number">
+                        {String(
+                          challenge.id
+                        ).padStart(2, "0")}
+                      </span>
 
-                    <span className="challenge-number">
-                      {String(
-                        challenge.id
-                      ).padStart(2, "0")}
+                      {completed && (
+                        <span className="challenge-check">
+                          ✓
+                        </span>
+                      )}
+
+                    </div>
+
+                    <span className="challenge-difficulty">
+                      {challenge.difficulty ||
+                        "Security challenge"}
                     </span>
 
-                    {completed && (
-                      <span className="challenge-check">
-                        ✓
-                      </span>
+                    <h3>
+                      {challenge.title}
+                    </h3>
+
+                    <p>
+                      {challenge.description ||
+                        "Identify the vulnerability, explain the risk, and apply the secure fix."}
+                    </p>
+
+                    {locked && (
+                      <p className="challenge-lock-note">
+                        Complete Challenge{" "}
+                        {Number(challenge.id) - 1} first.
+                      </p>
                     )}
 
-                  </div>
+                    <button
+                      type="button"
+                      className="challenge-card-button"
+                      disabled={locked}
+                      onClick={() => handleOpen(challenge)}
+                    >
+                      {buttonLabel}
 
-                  <span className="challenge-difficulty">
-                    {challenge.difficulty ||
-                      "Security challenge"}
-                  </span>
+                      {!locked && <span>→</span>}
+                    </button>
 
-                  <h3>
-                    {challenge.title}
-                  </h3>
+                  </article>
+                )
+              })}
 
-                  <p>
-                    Identify the vulnerability,
-                    explain the risk, and apply
-                    the secure fix.
-                  </p>
+            </div>
 
-                  <button
-                    className="challenge-card-button"
-                    onClick={() =>
-                      onChallenge(challenge.id)
-                    }
-                  >
-                    {completed
-                      ? "Review challenge"
-                      : "Start challenge"}
-
-                    <span>→</span>
-                  </button>
-
-                </article>
-              )
-            })}
-
-          </div>
-
-        </section>
+          </section>
+        )}
 
       </section>
 

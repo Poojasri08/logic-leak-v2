@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { apiRequest } from "../api"
 
 function Signup({ onSignup, onLogin }) {
   const [username, setUsername] = useState("")
@@ -15,45 +16,30 @@ function Signup({ onSignup, onLogin }) {
       return
     }
 
+    // Mirrors the server rule (password.length < 6 is rejected).
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters.")
+      return
+    }
+
     setLoading(true)
 
     try {
-      const response = await fetch(
-        "http://localhost:5000/api/auth/signup",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            username: username.trim(),
-            password,
-          }),
-        }
-      )
+      await apiRequest("/api/auth/signup", {
+        method: "POST",
+        body: {
+          username: username.trim(),
+          password,
+        },
+      })
 
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.message || "Signup failed.")
-      }
-
-      if (data.token) {
-        localStorage.setItem("logicLeakToken", data.token)
-      }
-
-      if (data.username) {
-        localStorage.setItem(
-          "logicLeakUsername",
-          data.username
-        )
-      }
-
+      // The backend does not issue a token at signup.
+      // App sends the learner to the login screen.
       if (onSignup) {
         onSignup()
       }
     } catch (error) {
-      setError(error.message || "Unable to connect to server.")
+      setError(error.message || "Unable to create your account.")
     } finally {
       setLoading(false)
     }
@@ -120,13 +106,13 @@ function Signup({ onSignup, onLogin }) {
                 onChange={(event) =>
                   setPassword(event.target.value)
                 }
-                placeholder="Create a password"
+                placeholder="Create a password (6+ characters)"
                 autoComplete="new-password"
               />
             </div>
 
             {error && (
-              <div className="login-error">
+              <div className="login-error" role="alert">
                 {error}
               </div>
             )}

@@ -1,6 +1,7 @@
 import { useState } from "react"
+import { apiRequest } from "../api"
 
-function Login({ onLogin, onSignup }) {
+function Login({ onLogin, onSignup, notice }) {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
@@ -18,32 +19,29 @@ function Login({ onLogin, onSignup }) {
     setLoading(true)
 
     try {
-      const response = await fetch(
-        "http://localhost:5000/api/auth/login",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            username: username.trim(),
-            password,
-          }),
-        }
-      )
+      const data = await apiRequest("/api/auth/login", {
+        method: "POST",
+        body: {
+          username: username.trim(),
+          password,
+        },
+      })
 
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.message || "Login failed.")
+      if (typeof data.token !== "string" || !data.token) {
+        throw new Error(
+          "The server sent an unexpected login response."
+        )
       }
 
       localStorage.setItem("logicLeakToken", data.token)
-      localStorage.setItem("logicLeakUsername", data.username)
+      localStorage.setItem(
+        "logicLeakUsername",
+        data.username || username.trim()
+      )
 
       onLogin()
     } catch (error) {
-      setError(error.message || "Unable to connect to server.")
+      setError(error.message || "Unable to log in.")
     } finally {
       setLoading(false)
     }
@@ -77,6 +75,23 @@ function Login({ onLogin, onSignup }) {
         <div className="login-card">
 
           <form onSubmit={handleSubmit}>
+
+            {notice && !error && (
+              <div
+                className={
+                  notice.type === "success"
+                    ? "login-notice"
+                    : "login-error"
+                }
+                role={
+                  notice.type === "success"
+                    ? "status"
+                    : "alert"
+                }
+              >
+                {notice.message}
+              </div>
+            )}
 
             <div className="login-field">
               <label htmlFor="username">
@@ -113,7 +128,7 @@ function Login({ onLogin, onSignup }) {
             </div>
 
             {error && (
-              <div className="login-error">
+              <div className="login-error" role="alert">
                 {error}
               </div>
             )}
