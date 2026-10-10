@@ -2,9 +2,34 @@
 
 > **Can You Spot the Leak?**
 
-Logic Leak 2.0 is an interactive cybersecurity learning platform focused on secure code review, vulnerability identification, and understanding how security flaws can be prevented.
+Logic Leak 2.0 is an interactive cybersecurity learning platform focused on secure code review, vulnerability identification, security reasoning, and understanding how security flaws can be prevented.
 
 Users analyze vulnerable code, identify the security flaw, explain why it exists, propose a secure fix, and handle an edge case.
+
+---
+
+## Project Status
+
+**Current Milestone: Phase 4 — Security & Architecture Audit Complete**
+
+| Phase | Status |
+|---|---|
+| Phase 1 — Core Backend | ✅ Complete |
+| Phase 2 — Learning / Game System | ✅ Complete |
+| Phase 3 — Security Hardening & Regression Testing | ✅ Complete |
+| Phase 4 — Security & Architecture Audit | ✅ Complete |
+| Phase 5 — Security Remediation | ⏳ Next |
+| Phase 6 — Production Hardening | ⏳ Planned |
+| Phase 7 — Final QA & Security Validation | ⏳ Planned |
+| Phase 8 — Deployment / Release | ⏳ Planned |
+
+### Current Test Baseline
+
+**112 passed · 0 failed · 112 total**
+
+The regression suite covers authentication, authorization, challenge progression, input validation, XP integrity, JWT attack cases, information disclosure, leaderboard behavior, and streak logic.
+
+---
 
 ## Features
 
@@ -12,13 +37,19 @@ Users analyze vulnerable code, identify the security flaw, explain why it exists
 - Vulnerability explanation and secure-fix reasoning
 - Edge-case and boundary-condition challenges
 - Sequential challenge progression
-- Answer validation
+- Tier-based learning system
+- Server-side answer validation
 - XP-based scoring
+- Level progression
+- Streak tracking
 - Protected user progress
 - Authentication and authorization
 - API-based challenge data
+- Leaderboard
 - Loading and error handling
 - Completion and progress tracking
+
+---
 
 ## Challenge Structure
 
@@ -31,7 +62,9 @@ Each challenge contains three tiers:
 | Tier 3 | Solve the edge case | 40 |
 | **Total** | **Per challenge** | **100** |
 
-There are currently 3 challenges, giving a maximum score of **300 XP**.
+There are currently **3 challenges**, giving a maximum score of **300 XP**.
+
+---
 
 ## Security Engineering
 
@@ -45,11 +78,13 @@ The project includes:
 - User existence checks
 - Cross-user authorization testing
 - Challenge progression enforcement
+- Tier progression enforcement
+- Server-side XP calculation
 - Input validation
 - Invalid challenge and tier handling
-- Duplicate reward prevention
 - Wrong-answer handling
 - Malformed JSON handling
+- Oversized request handling
 - Global API error handling
 - Authentication failure handling
 - Security regression testing
@@ -60,11 +95,13 @@ Protected endpoints require a valid authentication token.
 
 The backend does not rely only on client-supplied identity information. The authenticated user is reconstructed and validated on the server before protected operations are performed.
 
+JWT forgery and `alg:none` attack cases are included in the regression testing.
+
 ### Authorization
 
 User progress is scoped to the authenticated user.
 
-Cross-user access attempts were tested to verify that one user cannot access another user's progress.
+Cross-user access attempts were tested to verify that one user cannot modify another user's progress by supplying another user's ID.
 
 ### Business Logic Security
 
@@ -73,116 +110,145 @@ Challenge progression and reward logic are enforced server-side.
 Testing included attempts involving:
 
 - Skipping required challenges
+- Skipping required tiers
 - Invalid challenge IDs
 - Invalid tiers
 - Repeating completed tiers
-- Manipulating reward conditions
-- Submitting incorrect answers
+- Client-controlled XP
+- Client-controlled level
+- Client-controlled streak
+- Cross-user progress manipulation
+- Incorrect answers
+- Malformed requests
 
-### Regression Testing
+---
 
-After implementing security controls, the application was tested again as an integrated system.
+## Security Audit
 
-Regression testing covered:
+A dedicated security and architecture audit was completed in Phase 4.
 
-- Authentication
-- Authorization
-- Challenge progression
-- Input validation
-- XP and reward handling
-- Duplicate reward prevention
+### Confirmed Vulnerability
+
+#### A-04 — Concurrent Duplicate XP Reward
+
+**Severity:** P2
+**Status:** Confirmed
+
+The challenge reward flow currently contains a race condition where concurrent requests can pass the pre-transaction completion check before the progress state is updated.
+
+This means sequential duplicate-reward protection is working, but concurrent duplicate submissions require an atomic state transition.
+
+The issue has been identified and is scheduled for remediation in Phase 5.
+
+### Additional Hardening Findings
+
+The audit also identified:
+
+- JWT storage in `localStorage`
+- Permissive CORS configuration
+- Missing explicit SQLite foreign-key configuration in source
+- Username enumeration behavior
+- bcrypt password-length edge case requiring verification
+- JWT algorithm allowlisting hardening
+- Hardcoded development API URL
+- Challenge answer and scoring information duplicated in frontend source
+
+These findings are being tracked as security hardening work rather than being presented as confirmed vulnerabilities.
+
+---
+
+## Security Testing
+
+The current regression suite contains **112 tests with 0 failures**.
+
+### Authentication
+
+- Signup
+- Login
+- Password validation
+- Wrong-password handling
+- Authentication-required endpoints
+- Invalid tokens
+- Non-Bearer authorization
+
+### Authorization
+
+- Cross-user access attempts
+- User ID manipulation
+- Protected progress endpoints
+- Protected leaderboard endpoints
+- Protected challenge submission
+
+### JWT Security
+
+- Forged token rejection
+- Invalid signature rejection
+- `alg:none` attack rejection
+
+### Input Validation
+
+- Invalid challenge IDs
+- Invalid tiers
+- Invalid steps
+- Missing fields
+- Wrong data types
+- Empty answers
+- Oversized answers
 - Malformed JSON
-- Fresh-user challenge flow
+- Oversized request bodies
 
-The purpose was to verify that previously implemented security fixes continued to work together.
+### Business Logic
 
-## Security Documentation
+- Challenge ordering
+- Tier ordering
+- XP integrity
+- Wrong-answer behavior
+- Duplicate reward behavior
+- Explanation/fix sequencing
+- Level progression
+- Streak behavior
 
-Security testing and implementation evidence is maintained in the `docs/` directory.
+### Information Disclosure
 
-The documentation covers:
+- Password/hash protection
+- Leaderboard data exposure
+- Public challenge response filtering
+- Protection of challenge answers and secure code
 
-- Authentication
-- Authorization hardening
-- API hardening
-- Input validation
-- Business logic testing
-- Security regression testing
+---
 
-## Screenshots
+## Known Testing Gaps
 
-### Landing Page
+The current regression suite does not yet automatically test:
 
-![Logic Leak 2.0 Landing Page](Screenshots/landing-page.png)
+- Concurrent reward requests
+- Expired JWTs
+- Rate limiting
+- CORS behavior
+- Frontend security behavior
 
-### Challenge Interface
+These gaps are part of the Phase 5 security remediation and testing roadmap.
 
-![Logic Leak 2.0 Challenge](Screenshots/challenge.png)
+---
 
-### Completion Screen
-
-![Logic Leak 2.0 Completion Screen](Screenshots/completion.png)
-
-## Tech Stack
-
-### Frontend
-
-- React
-- Vite
-- JavaScript
-- CSS
-
-### Backend
-
-- Node.js
-- Express
-- REST API
-
-### Database
-
-- SQLite
-
-### Security
-
-- JWT
-- bcrypt
-- Server-side validation
-- Authorization checks
-
-### Development
-
-- Git
-- GitHub
-- PowerShell
-
-## Project Structure
+## Security Architecture
 
 ```text
-logic-leak-v2/
-|
-├── frontend/
-│   └── src/
-│
-├── backend/
-│   ├── server.js
-│   ├── challenges.js
-│   └── database.js
-│
-├── docs/
-│   ├── day10/
-│   ├── day11/
-│   ├── day12/
-│   ├── day14/
-│   ├── day15/
-│   ├── architecture.md
-│   ├── challenge-design.md
-│   ├── Day-13-authentication.md
-│   ├── day16-security-regression.md
-│   ├── requirements.md
-│   └── roadmap.md
-│
-├── Screenshots/
-│
-├── .gitignore
-├── package.json
-└── README.md
+Frontend
+   |
+   | API Requests
+   v
+Express API
+   |
+   +-- Authentication
+   |
+   +-- Authorization
+   |
+   +-- Input Validation
+   |
+   +-- Business Logic
+   |
+   +-- XP / Progression
+   |
+   v
+SQLite Database
