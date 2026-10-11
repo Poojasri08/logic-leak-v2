@@ -1,133 +1,111 @@
-import { useCallback, useEffect, useState } from "react"
+﻿import { useCallback, useEffect, useState } from "react"
 import Login from "./pages/Login"
 import Signup from "./pages/Signup"
 import Dashboard from "./pages/Dashboard"
 import Challenge from "./pages/Challenge"
-
-const API_URL = "http://localhost:5000"
-
-function clearSession() {
-  localStorage.removeItem("logicLeakToken")
-  localStorage.removeItem("logicLeakUsername")
-}
+import { apiRequest } from "./api"
 
 function App() {
-  const hasStoredToken = Boolean(
-    localStorage.getItem("logicLeakToken")
-  )
-
   const [page, setPage] = useState("login")
   const [selectedChallenge, setSelectedChallenge] =
     useState(null)
 
-  // "checking" = validating a stored token
-  // "ready"    = safe to render a page
-  // "error"    = server unreachable, offer retry
-  const [sessionStatus, setSessionStatus] = useState(
-    hasStoredToken ? "checking" : "ready"
-  )
+  const [sessionStatus, setSessionStatus] =
+    useState("checking")
+
+  const [user, setUser] = useState(null)
 
   const [notice, setNotice] = useState(null)
-  const [retryCount, setRetryCount] = useState(0)
 
-  /* =========================================
-     RESTORE SESSION (validate the token)
-  ========================================= */
+  const [retryCount, setRetryCount] =
+    useState(0)
 
   useEffect(() => {
-    const token = localStorage.getItem("logicLeakToken")
-
-    if (!token) {
-      setSessionStatus("ready")
-      return
-    }
-
     let cancelled = false
 
-    setSessionStatus("checking")
+    async function checkSession() {
+      try {
+        const data = await apiRequest(
+          "/api/auth/me"
+        )
 
-    fetch(`${API_URL}/api/auth/me`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((response) => {
         if (cancelled) {
           return
         }
 
-        if (response.ok) {
-          setPage("dashboard")
-          setSessionStatus("ready")
+        setUser(data.user)
+        setPage("dashboard")
+        setSessionStatus("ready")
+      } catch (error) {
+        if (cancelled) {
           return
         }
 
         if (
-          response.status === 401 ||
-          response.status === 403
+          error.status === 401
         ) {
-          clearSession()
-          setNotice({
-            type: "error",
-            message:
-              "Your session has expired. Please log in again.",
-          })
+          setUser(null)
           setPage("login")
           setSessionStatus("ready")
           return
         }
 
-        // Unexpected server response: do not destroy the
-        // session, let the learner retry.
         setSessionStatus("error")
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setSessionStatus("error")
-        }
-      })
+      }
+    }
+
+    checkSession()
 
     return () => {
       cancelled = true
     }
   }, [retryCount])
 
-  /* =========================================
-     HANDLERS
-  ========================================= */
-
-  function handleLogin() {
+  function handleLogin(loggedInUser) {
+    setUser(loggedInUser)
     setNotice(null)
     setPage("dashboard")
   }
 
-  // The backend does not return a token on signup, so the
-  // learner must log in after creating an account.
   function handleSignup() {
     setNotice({
       type: "success",
-      message: "Account created. Please log in.",
+      message:
+        "Account created. Please log in.",
     })
+
     setPage("login")
   }
 
-  function handleLogout() {
-    clearSession()
-    setSelectedChallenge(null)
-    setNotice(null)
-    setPage("login")
+  async function handleLogout() {
+    try {
+      await apiRequest(
+        "/api/auth/logout",
+        {
+          method: "POST",
+        }
+      )
+    } catch {
+      // The local UI still clears even if the
+      // backend is temporarily unreachable.
+    } finally {
+      setUser(null)
+      setSelectedChallenge(null)
+      setNotice(null)
+      setPage("login")
+    }
   }
 
-  // Called by Dashboard / Challenge when any API request
-  // returns 401 or 403.
   const handleAuthError = useCallback(() => {
-    clearSession()
+    setUser(null)
     setSelectedChallenge(null)
+
     setNotice({
       type: "error",
       message:
         "Your session has expired. Please log in again.",
     })
+
     setPage("login")
   }, [])
 
@@ -141,13 +119,14 @@ function App() {
     setPage("dashboard")
   }
 
-  /* =========================================
-     RENDER
-  ========================================= */
-
   if (sessionStatus === "checking") {
     return (
-      <main style={{ padding: "3rem", textAlign: "center" }}>
+      <main
+        style={{
+          padding: "3rem",
+          textAlign: "center",
+        }}
+      >
         <p>Checking your session...</p>
       </main>
     )
@@ -155,14 +134,24 @@ function App() {
 
   if (sessionStatus === "error") {
     return (
-      <main style={{ padding: "3rem", textAlign: "center" }}>
+      <main
+        style={{
+          padding: "3rem",
+          textAlign: "center",
+        }}
+      >
         <p>
-          Could not reach the server. Your progress is safe.
+          Could not reach the server. Your
+          progress is safe.
         </p>
 
         <button
           type="button"
-          onClick={() => setRetryCount((count) => count + 1)}
+          onClick={() =>
+            setRetryCount(
+              (count) => count + 1
+            )
+          }
         >
           Try again
         </button>
@@ -170,7 +159,9 @@ function App() {
         <button
           type="button"
           onClick={handleLogout}
-          style={{ marginLeft: "0.75rem" }}
+          style={{
+            marginLeft: "0.75rem",
+          }}
         >
           Log out
         </button>
@@ -206,6 +197,7 @@ function App() {
   if (page === "dashboard") {
     return (
       <Dashboard
+        username={user?.username || ""}
         onChallenge={handleChallenge}
         onLogout={handleLogout}
         onAuthError={handleAuthError}
@@ -217,6 +209,7 @@ function App() {
     return (
       <Challenge
         challengeId={selectedChallenge}
+
         onBack={handleDashboard}
         onLogout={handleLogout}
         onAuthError={handleAuthError}

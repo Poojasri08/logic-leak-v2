@@ -19,29 +19,34 @@ function Login({ onLogin, onSignup, notice }) {
     setLoading(true)
 
     try {
-      const data = await apiRequest("/api/auth/login", {
-        method: "POST",
-        body: {
-          username: username.trim(),
-          password,
-        },
-      })
+      const data = await apiRequest(
+        "/api/auth/login",
+        {
+          method: "POST",
+          body: {
+            username: username.trim(),
+            password,
+          },
+        }
+      )
 
-      if (typeof data.token !== "string" || !data.token) {
+      if (
+        !data.userId ||
+        typeof data.username !== "string"
+      ) {
         throw new Error(
           "The server sent an unexpected login response."
         )
       }
 
-      localStorage.setItem("logicLeakToken", data.token)
-      localStorage.setItem(
-        "logicLeakUsername",
-        data.username || username.trim()
-      )
-
-      onLogin()
+      onLogin({
+        id: data.userId,
+        username: data.username,
+      })
     } catch (error) {
-      setError(error.message || "Unable to log in.")
+      setError(
+        error.message || "Unable to log in."
+      )
     } finally {
       setLoading(false)
     }
@@ -128,7 +133,10 @@ function Login({ onLogin, onSignup, notice }) {
             </div>
 
             {error && (
-              <div className="login-error" role="alert">
+              <div
+                className="login-error"
+                role="alert"
+              >
                 {error}
               </div>
             )}
@@ -138,7 +146,9 @@ function Login({ onLogin, onSignup, notice }) {
               className="login-button"
               disabled={loading}
             >
-              {loading ? "Signing in..." : "Continue"}
+              {loading
+                ? "Signing in..."
+                : "Continue"}
 
               {!loading && (
                 <span>→</span>
@@ -163,7 +173,9 @@ function Login({ onLogin, onSignup, notice }) {
         <div className="login-features">
 
           <div className="login-feature">
-            <span className="feature-number">01</span>
+            <span className="feature-number">
+              01
+            </span>
 
             <div>
               <strong>Find</strong>
@@ -172,20 +184,28 @@ function Login({ onLogin, onSignup, notice }) {
           </div>
 
           <div className="login-feature">
-            <span className="feature-number">02</span>
+            <span className="feature-number">
+              02
+            </span>
 
             <div>
               <strong>Understand</strong>
-              <p>Explain why it is dangerous.</p>
+              <p>
+                Explain why it is dangerous.
+              </p>
             </div>
           </div>
 
           <div className="login-feature">
-            <span className="feature-number">03</span>
+            <span className="feature-number">
+              03
+            </span>
 
             <div>
               <strong>Fix</strong>
-              <p>Learn the secure solution.</p>
+              <p>
+                Learn the secure solution.
+              </p>
             </div>
           </div>
 

@@ -1,60 +1,65 @@
 import { useEffect, useState } from "react"
+import {
+  ApiError,
+  apiRequest,
+} from "../api"
 
-const API_URL = "http://localhost:5000"
-
-function Challenge({ username, onLogout }) {
-  const [challengeIndex, setChallengeIndex] = useState(0)
+function Challenge({ onLogout }) {
+  const [challengeIndex, setChallengeIndex] =
+    useState(0)
   const [answer, setAnswer] = useState("")
   const [result, setResult] = useState(null)
-  const [resultType, setResultType] = useState("")
+  const [resultType, setResultType] =
+    useState("")
   const [tier, setTier] = useState(1)
 
   const [score, setScore] = useState(0)
 
-  const [apiChallenges, setApiChallenges] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [apiError, setApiError] = useState("")
+  const [apiChallenges, setApiChallenges] =
+    useState([])
+  const [loading, setLoading] =
+    useState(true)
+  const [apiError, setApiError] =
+    useState("")
 
-  const [tier2Explanation, setTier2Explanation] = useState("")
-  const [tier2Fix, setTier2Fix] = useState("")
-  const [tier2Step, setTier2Step] = useState(1)
-  const [tier3Answer, setTier3Answer] = useState("")
+  const [tier2Explanation, setTier2Explanation] =
+    useState("")
+  const [tier2Fix, setTier2Fix] =
+    useState("")
+  const [tier2Step, setTier2Step] =
+    useState(1)
+  const [tier3Answer, setTier3Answer] =
+    useState("")
 
-  const [hintLevel, setHintLevel] = useState(0)
-
-  function getToken() {
-    return localStorage.getItem("logicLeakToken")
-  }
-
-  function getAuthHeaders() {
-    return {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${getToken()}`,
-    }
-  }
+  const [hintLevel, setHintLevel] =
+    useState(0)
 
   /* =========================================
      LOAD CHALLENGES
   ========================================= */
 
   useEffect(() => {
-    fetch(`${API_URL}/api/challenges`)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to load challenges.")
-        }
+    async function loadChallenges() {
+      try {
+        const data = await apiRequest(
+          "/api/challenges"
+        )
 
-        return response.json()
-      })
-      .then((data) => {
         setApiChallenges(data)
         setLoading(false)
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error(error)
-        setApiError(error.message)
+
+        setApiError(
+          error.message ||
+            "Failed to load challenges."
+        )
+
         setLoading(false)
-      })
+      }
+    }
+
+    loadChallenges()
   }, [])
 
   /* =========================================
@@ -62,24 +67,18 @@ function Challenge({ username, onLogout }) {
   ========================================= */
 
   useEffect(() => {
-    if (!getToken() || apiChallenges.length === 0) {
+    if (apiChallenges.length === 0) {
       return
     }
 
-    fetch(`${API_URL}/api/progress`, {
-      headers: {
-        Authorization: `Bearer ${getToken()}`,
-      },
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to load progress.")
-        }
+    async function loadInitialProgress() {
+      try {
+        const data = await apiRequest(
+          "/api/progress"
+        )
 
-        return response.json()
-      })
-      .then((data) => {
-        const progress = data.progress || []
+        const progress =
+          data.progress || []
 
         const total = progress.reduce(
           (sum, item) =>
@@ -90,43 +89,60 @@ function Challenge({ username, onLogout }) {
         setScore(total)
 
         const firstIncompleteIndex =
-          apiChallenges.findIndex((challenge) => {
-            const item = progress.find(
-              (entry) =>
-                Number(entry.challenge_id) ===
-                Number(challenge.id)
-            )
+          apiChallenges.findIndex(
+            (challenge) => {
+              const item =
+                progress.find(
+                  (entry) =>
+                    Number(
+                      entry.challenge_id
+                    ) ===
+                    Number(challenge.id)
+                )
 
-            return (
-              !item ||
-              Number(item.completed) !== 1
-            )
-          })
+              return (
+                !item ||
+                Number(item.completed) !== 1
+              )
+            }
+          )
 
         if (firstIncompleteIndex !== -1) {
-          setChallengeIndex(firstIncompleteIndex)
+          setChallengeIndex(
+            firstIncompleteIndex
+          )
 
           const currentProgress =
             progress.find(
               (entry) =>
-                Number(entry.challenge_id) ===
                 Number(
-                  apiChallenges[firstIncompleteIndex].id
+                  entry.challenge_id
+                ) ===
+                Number(
+                  apiChallenges[
+                    firstIncompleteIndex
+                  ].id
                 )
             )
 
           if (!currentProgress) {
             setTier(1)
           } else if (
-            Number(currentProgress.tier1_completed) !== 1
+            Number(
+              currentProgress.tier1_completed
+            ) !== 1
           ) {
             setTier(1)
           } else if (
-            Number(currentProgress.tier2_completed) !== 1
+            Number(
+              currentProgress.tier2_completed
+            ) !== 1
           ) {
             setTier(2)
           } else if (
-            Number(currentProgress.tier3_completed) !== 1
+            Number(
+              currentProgress.tier3_completed
+            ) !== 1
           ) {
             setTier(3)
           }
@@ -137,10 +153,24 @@ function Challenge({ username, onLogout }) {
 
           setTier(4)
         }
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error(error)
-      })
+
+        if (
+          error instanceof ApiError &&
+          error.status === 401
+        ) {
+          return
+        }
+
+        setApiError(
+          error.message ||
+            "Failed to load progress."
+        )
+      }
+    }
+
+    loadInitialProgress()
   }, [apiChallenges])
 
   /* =========================================
@@ -209,17 +239,17 @@ function Challenge({ username, onLogout }) {
     }
   }
 
-  function handleAuthError(data) {
+  function handleAuthError(error) {
     if (
-      data.message ===
-        "Access token required" ||
-      data.message ===
-        "Invalid or expired token"
+      error instanceof ApiError &&
+      error.status === 401
     ) {
       showResult(
         "Your session has expired. Please log in again.",
         "error"
       )
+
+      onLogout()
 
       return true
     }
@@ -228,27 +258,10 @@ function Challenge({ username, onLogout }) {
   }
 
   async function loadProgress() {
-    const token = getToken()
-
-    if (!token) {
-      return
-    }
-
     try {
-      const response = await fetch(
-        `${API_URL}/api/progress`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const data = await apiRequest(
+        "/api/progress"
       )
-
-      if (!response.ok) {
-        return
-      }
-
-      const data = await response.json()
 
       const total = (
         data.progress || []
@@ -261,6 +274,8 @@ function Challenge({ username, onLogout }) {
       setScore(total)
     } catch (error) {
       console.error(error)
+
+      handleAuthError(error)
     }
   }
 
@@ -280,30 +295,16 @@ function Challenge({ username, onLogout }) {
     }
 
     try {
-      const response = await fetch(
-        `${API_URL}/api/challenges/${challenge.id}/answer`,
+      const data = await apiRequest(
+        `/api/challenges/${challenge.id}/answer`,
         {
           method: "POST",
-          headers: getAuthHeaders(),
-          body: JSON.stringify({
+          body: {
             tier: 1,
             answer: answer.trim(),
-          }),
+          },
         }
       )
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        if (handleAuthError(data)) {
-          return
-        }
-
-        throw new Error(
-          data.message ||
-            "Validation failed."
-        )
-      }
 
       if (data.correct) {
         showResult(
@@ -324,8 +325,13 @@ function Challenge({ username, onLogout }) {
     } catch (error) {
       console.error(error)
 
+      if (handleAuthError(error)) {
+        return
+      }
+
       showResult(
-        "Unable to validate your answer.",
+        error.message ||
+          "Unable to validate your answer.",
         "error"
       )
     }
@@ -355,31 +361,17 @@ function Challenge({ username, onLogout }) {
     }
 
     try {
-      const response = await fetch(
-        `${API_URL}/api/challenges/${challenge.id}/answer`,
+      const data = await apiRequest(
+        `/api/challenges/${challenge.id}/answer`,
         {
           method: "POST",
-          headers: getAuthHeaders(),
-          body: JSON.stringify({
+          body: {
             tier: 2,
             step: tier2Step,
             answer: currentAnswer,
-          }),
+          },
         }
       )
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        if (handleAuthError(data)) {
-          return
-        }
-
-        throw new Error(
-          data.message ||
-            "Validation failed."
-        )
-      }
 
       if (!data.correct) {
         showResult(
@@ -413,8 +405,13 @@ function Challenge({ username, onLogout }) {
     } catch (error) {
       console.error(error)
 
+      if (handleAuthError(error)) {
+        return
+      }
+
       showResult(
-        "Unable to validate your answer.",
+        error.message ||
+          "Unable to validate your answer.",
         "error"
       )
     }
@@ -437,30 +434,16 @@ function Challenge({ username, onLogout }) {
     }
 
     try {
-      const response = await fetch(
-        `${API_URL}/api/challenges/${challenge.id}/answer`,
+      const data = await apiRequest(
+        `/api/challenges/${challenge.id}/answer`,
         {
           method: "POST",
-          headers: getAuthHeaders(),
-          body: JSON.stringify({
+          body: {
             tier: 3,
             answer: tier3Answer.trim(),
-          }),
+          },
         }
       )
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        if (handleAuthError(data)) {
-          return
-        }
-
-        throw new Error(
-          data.message ||
-            "Validation failed."
-        )
-      }
 
       if (data.correct) {
         showResult(
@@ -480,8 +463,13 @@ function Challenge({ username, onLogout }) {
     } catch (error) {
       console.error(error)
 
+      if (handleAuthError(error)) {
+        return
+      }
+
       showResult(
-        "Unable to validate your answer.",
+        error.message ||
+          "Unable to validate your answer.",
         "error"
       )
     }
@@ -568,7 +556,7 @@ function Challenge({ username, onLogout }) {
             <div className="lesson-meta">
               Lesson {challenge.id} of{" "}
               {totalChallenges}
-              <span>·</span>
+              <span>Â·</span>
               {challenge.difficulty}
             </div>
 
@@ -719,7 +707,7 @@ function Challenge({ username, onLogout }) {
             <form onSubmit={handleSubmit}>
 
               <span className="task-step">
-                STEP 1 · FIND
+                STEP 1 Â· FIND
               </span>
 
               <h2>
@@ -748,7 +736,7 @@ function Challenge({ username, onLogout }) {
                   className="primary-action"
                 >
                   Check answer
-                  <span>→</span>
+                  <span>â†’</span>
                 </button>
 
               </div>
@@ -789,7 +777,7 @@ function Challenge({ username, onLogout }) {
                         {hintLevel === 0
                           ? "Show hint"
                           : "Show next hint"}
-                        {" →"}
+                        {" â†’"}
                       </button>
                     )}
 
@@ -807,7 +795,7 @@ function Challenge({ username, onLogout }) {
             >
 
               <span className="task-step">
-                STEP 2 ·{" "}
+                STEP 2 Â·{" "}
                 {tier2Step === 1
                   ? "EXPLAIN"
                   : "FIX"}
@@ -859,7 +847,7 @@ function Challenge({ username, onLogout }) {
                     ? "Continue"
                     : "Check fix"}
 
-                  <span>→</span>
+                  <span>â†’</span>
                 </button>
 
               </div>
@@ -875,7 +863,7 @@ function Challenge({ username, onLogout }) {
             >
 
               <span className="task-step">
-                STEP 3 · THINK DEEPER
+                STEP 3 Â· THINK DEEPER
               </span>
 
               <h2>
@@ -904,7 +892,7 @@ function Challenge({ username, onLogout }) {
                   className="primary-action"
                 >
                   Complete challenge
-                  <span>→</span>
+                  <span>â†’</span>
                 </button>
 
               </div>

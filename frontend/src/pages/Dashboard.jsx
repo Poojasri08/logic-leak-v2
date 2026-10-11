@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react"
 import { apiRequest, isAuthError } from "../api"
 
-function Dashboard({ onChallenge, onLogout, onAuthError }) {
+function Dashboard({
+  username,
+  onChallenge,
+  onLogout,
+  onAuthError,
+}) {
   const [challenges, setChallenges] = useState([])
   const [progressRows, setProgressRows] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const [reloadKey, setReloadKey] = useState(0)
-
-  const username =
-    localStorage.getItem("logicLeakUsername") || ""
 
   /* =========================================
      LOAD CHALLENGES + PROGRESS
@@ -26,7 +28,7 @@ function Dashboard({ onChallenge, onLogout, onAuthError }) {
         const [challengeData, progressData] =
           await Promise.all([
             apiRequest("/api/challenges"),
-            apiRequest("/api/progress", { auth: true }),
+            apiRequest("/api/progress"),
           ])
 
         if (cancelled) {
@@ -47,6 +49,7 @@ function Dashboard({ onChallenge, onLogout, onAuthError }) {
             (a, b) => Number(a.id) - Number(b.id)
           )
         )
+
         setProgressRows(progressData.progress)
       } catch (error) {
         if (cancelled) {
@@ -83,7 +86,10 @@ function Dashboard({ onChallenge, onLogout, onAuthError }) {
   if (loading) {
     return (
       <main className="dashboard-page">
-        <div className="dashboard-loading" role="status">
+        <div
+          className="dashboard-loading"
+          role="status"
+        >
           Loading your learning progress...
         </div>
       </main>
@@ -93,7 +99,10 @@ function Dashboard({ onChallenge, onLogout, onAuthError }) {
   if (error) {
     return (
       <main className="dashboard-page">
-        <div className="dashboard-error" role="alert">
+        <div
+          className="dashboard-error"
+          role="alert"
+        >
           <p>{error}</p>
 
           <button
@@ -105,7 +114,10 @@ function Dashboard({ onChallenge, onLogout, onAuthError }) {
             Try again
           </button>
 
-          <button type="button" onClick={onLogout}>
+          <button
+            type="button"
+            onClick={onLogout}
+          >
             Log out
           </button>
         </div>
@@ -127,20 +139,30 @@ function Dashboard({ onChallenge, onLogout, onAuthError }) {
   )
 
   function isCompleted(challengeId) {
-    const row = progressById.get(Number(challengeId))
+    const row = progressById.get(
+      Number(challengeId)
+    )
 
-    return Boolean(row) && Number(row.completed) === 1
+    return (
+      Boolean(row) &&
+      Number(row.completed) === 1
+    )
   }
 
   // Mirrors the server rule: challenge N needs N-1 completed.
   function isLocked(challengeId) {
     const id = Number(challengeId)
 
-    return id > 1 && !isCompleted(id - 1)
+    return (
+      id > 1 &&
+      !isCompleted(id - 1)
+    )
   }
 
   function tiersDone(challengeId) {
-    const row = progressById.get(Number(challengeId))
+    const row = progressById.get(
+      Number(challengeId)
+    )
 
     if (!row) {
       return 0
@@ -150,36 +172,48 @@ function Dashboard({ onChallenge, onLogout, onAuthError }) {
       row.tier1_completed,
       row.tier2_completed,
       row.tier3_completed,
-    ].filter((value) => Number(value) === 1).length
+    ].filter(
+      (value) => Number(value) === 1
+    ).length
   }
 
   const totalXP = progressRows.reduce(
-    (sum, row) => sum + Number(row.score || 0),
+    (sum, row) =>
+      sum + Number(row.score || 0),
     0
   )
 
   const maxXP = challenges.reduce(
     (sum, challenge) =>
       sum +
-      Number(challenge.tier1?.points || 0) +
-      Number(challenge.tier2?.points || 0) +
-      Number(challenge.tier3?.points || 0),
+      Number(
+        challenge.tier1?.points || 0
+      ) +
+      Number(
+        challenge.tier2?.points || 0
+      ) +
+      Number(
+        challenge.tier3?.points || 0
+      ),
     0
   )
 
-  const completedCount = challenges.filter((challenge) =>
-    isCompleted(challenge.id)
-  ).length
+  const completedCount =
+    challenges.filter((challenge) =>
+      isCompleted(challenge.id)
+    ).length
 
-  const currentChallenge = challenges.find(
-    (challenge) =>
-      !isCompleted(challenge.id) &&
-      !isLocked(challenge.id)
-  )
+  const currentChallenge =
+    challenges.find(
+      (challenge) =>
+        !isCompleted(challenge.id) &&
+        !isLocked(challenge.id)
+    )
 
-  const currentTiersDone = currentChallenge
-    ? tiersDone(currentChallenge.id)
-    : 0
+  const currentTiersDone =
+    currentChallenge
+      ? tiersDone(currentChallenge.id)
+      : 0
 
   function handleOpen(challenge) {
     if (isLocked(challenge.id)) {
@@ -211,9 +245,14 @@ function Dashboard({ onChallenge, onLogout, onAuthError }) {
         <div className="dashboard-header-stats">
           <span>⚡ {totalXP} XP</span>
 
-          {username && <span>{username}</span>}
+          {username && (
+            <span>{username}</span>
+          )}
 
-          <button type="button" onClick={onLogout}>
+          <button
+            type="button"
+            onClick={onLogout}
+          >
             Log out
           </button>
         </div>
@@ -272,17 +311,23 @@ function Dashboard({ onChallenge, onLogout, onAuthError }) {
 
             <div>
               <strong>
-                {completedCount} / {challenges.length}
+                {completedCount} /{" "}
+                {challenges.length}
               </strong>
 
-              <span>Challenges completed</span>
+              <span>
+                Challenges completed
+              </span>
             </div>
           </div>
 
         </section>
 
         {challenges.length === 0 && (
-          <div className="dashboard-empty" role="status">
+          <div
+            className="dashboard-empty"
+            role="status"
+          >
             No challenges are available right now.
           </div>
         )}
@@ -307,10 +352,9 @@ function Dashboard({ onChallenge, onLogout, onAuthError }) {
             <div className="continue-card">
 
               <div className="continue-number">
-                {String(currentChallenge.id).padStart(
-                  2,
-                  "0"
-                )}
+                {String(
+                  currentChallenge.id
+                ).padStart(2, "0")}
               </div>
 
               <div className="continue-info">
@@ -336,14 +380,17 @@ function Dashboard({ onChallenge, onLogout, onAuthError }) {
                       className="progress-fill"
                       style={{
                         width: `${Math.round(
-                          (currentTiersDone / 3) * 100
+                          (currentTiersDone /
+                            3) *
+                            100
                         )}%`,
                       }}
                     />
                   </div>
 
                   <span>
-                    {currentTiersDone} of 3 steps complete
+                    {currentTiersDone} of 3
+                    steps complete
                   </span>
 
                 </div>
@@ -354,12 +401,15 @@ function Dashboard({ onChallenge, onLogout, onAuthError }) {
                 type="button"
                 className="continue-button"
                 onClick={() =>
-                  handleOpen(currentChallenge)
+                  handleOpen(
+                    currentChallenge
+                  )
                 }
               >
                 {currentTiersDone > 0
                   ? "Continue"
                   : "Start"}
+
                 <span>→</span>
               </button>
 
@@ -368,20 +418,27 @@ function Dashboard({ onChallenge, onLogout, onAuthError }) {
           </section>
         )}
 
-        {challenges.length > 0 && !currentChallenge && (
-          <section className="dashboard-section">
-            <div className="continue-card" role="status">
-              <div className="continue-info">
-                <h3>All challenges completed</h3>
+        {challenges.length > 0 &&
+          !currentChallenge && (
+            <section className="dashboard-section">
+              <div
+                className="continue-card"
+                role="status"
+              >
+                <div className="continue-info">
+                  <h3>
+                    All challenges completed
+                  </h3>
 
-                <p>
-                  You finished every challenge. You can
-                  review any of them below.
-                </p>
+                  <p>
+                    You finished every challenge.
+                    You can review any of them
+                    below.
+                  </p>
+                </div>
               </div>
-            </div>
-          </section>
-        )}
+            </section>
+          )}
 
         {/* Challenges */}
 
@@ -409,27 +466,45 @@ function Dashboard({ onChallenge, onLogout, onAuthError }) {
             <div className="challenge-grid">
 
               {challenges.map((challenge) => {
-                const completed = isCompleted(challenge.id)
-                const locked = isLocked(challenge.id)
-                const started =
-                  !completed && tiersDone(challenge.id) > 0
+                const completed =
+                  isCompleted(
+                    challenge.id
+                  )
 
-                let buttonLabel = "Start challenge"
+                const locked =
+                  isLocked(
+                    challenge.id
+                  )
+
+                const started =
+                  !completed &&
+                  tiersDone(
+                    challenge.id
+                  ) > 0
+
+                let buttonLabel =
+                  "Start challenge"
 
                 if (completed) {
-                  buttonLabel = "Review challenge"
+                  buttonLabel =
+                    "Review challenge"
                 } else if (locked) {
                   buttonLabel = "Locked"
                 } else if (started) {
-                  buttonLabel = "Continue challenge"
+                  buttonLabel =
+                    "Continue challenge"
                 }
 
                 return (
                   <article
                     className={[
                       "challenge-card",
-                      completed ? "challenge-completed" : "",
-                      locked ? "challenge-locked" : "",
+                      completed
+                        ? "challenge-completed"
+                        : "",
+                      locked
+                        ? "challenge-locked"
+                        : "",
                     ]
                       .filter(Boolean)
                       .join(" ")}
@@ -469,7 +544,10 @@ function Dashboard({ onChallenge, onLogout, onAuthError }) {
                     {locked && (
                       <p className="challenge-lock-note">
                         Complete Challenge{" "}
-                        {Number(challenge.id) - 1} first.
+                        {Number(
+                          challenge.id
+                        ) - 1}{" "}
+                        first.
                       </p>
                     )}
 
@@ -477,11 +555,17 @@ function Dashboard({ onChallenge, onLogout, onAuthError }) {
                       type="button"
                       className="challenge-card-button"
                       disabled={locked}
-                      onClick={() => handleOpen(challenge)}
+                      onClick={() =>
+                        handleOpen(
+                          challenge
+                        )
+                      }
                     >
                       {buttonLabel}
 
-                      {!locked && <span>→</span>}
+                      {!locked && (
+                        <span>→</span>
+                      )}
                     </button>
 
                   </article>
