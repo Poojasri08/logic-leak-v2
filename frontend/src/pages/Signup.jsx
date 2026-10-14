@@ -39,7 +39,9 @@ function Signup({ onSignup, onLogin }) {
         onSignup()
       }
     } catch (error) {
-      setError(error.message || "Unable to create your account.")
+      setError(
+        error.message || "Unable to create your account."
+      )
     } finally {
       setLoading(false)
     }
@@ -47,11 +49,7 @@ function Signup({ onSignup, onLogin }) {
 
   return (
     <main className="login-page">
-      <div className="login-pattern" />
-
       <section className="login-content">
-
-        {/* Logo */}
         <header className="login-header">
           <div className="login-logo-mark">
             L
@@ -62,9 +60,15 @@ function Signup({ onSignup, onLogin }) {
           </div>
         </header>
 
-        {/* Intro */}
         <div className="login-intro">
-          <h1>Start learning security.</h1>
+          <span className="login-eyebrow">
+            SECURITY LEARNING PLATFORM
+          </span>
+
+          <h1>
+            Start learning
+            <span> security.</span>
+          </h1>
 
           <p>
             Build your security skills by finding,
@@ -72,11 +76,18 @@ function Signup({ onSignup, onLogin }) {
           </p>
         </div>
 
-        {/* Signup Card */}
         <div className="login-card">
+          <div className="login-card-header">
+            <span className="login-card-label">
+              CREATE ACCOUNT
+            </span>
+
+            <span className="login-card-status">
+              SECURE SIGNUP
+            </span>
+          </div>
 
           <form onSubmit={handleSubmit}>
-
             <div className="login-field">
               <label htmlFor="signup-username">
                 Username
@@ -91,6 +102,7 @@ function Signup({ onSignup, onLogin }) {
                 }
                 placeholder="Choose a username"
                 autoComplete="username"
+                disabled={loading}
               />
             </div>
 
@@ -108,12 +120,17 @@ function Signup({ onSignup, onLogin }) {
                 }
                 placeholder="Create a password (6+ characters)"
                 autoComplete="new-password"
+                disabled={loading}
               />
             </div>
 
             {error && (
-              <div className="login-error" role="alert">
-                {error}
+              <div
+                className="login-error"
+                role="alert"
+              >
+                <span aria-hidden="true">!</span>
+                <span>{error}</span>
               </div>
             )}
 
@@ -122,13 +139,18 @@ function Signup({ onSignup, onLogin }) {
               className="login-button"
               disabled={loading}
             >
-              {loading
-                ? "Creating account..."
-                : "Create account"}
+              <span>
+                {loading
+                  ? "Creating account..."
+                  : "Create account"}
+              </span>
 
-              {!loading && <span>→</span>}
+              {!loading && (
+                <span aria-hidden="true">
+                  →
+                </span>
+              )}
             </button>
-
           </form>
 
           <div className="login-signup">
@@ -137,16 +159,14 @@ function Signup({ onSignup, onLogin }) {
             <button
               type="button"
               onClick={onLogin}
+              disabled={loading}
             >
               Sign in
             </button>
           </div>
-
         </div>
 
-        {/* Learning steps */}
         <div className="login-features">
-
           <div className="login-feature">
             <span className="feature-number">
               01
@@ -179,13 +199,13 @@ function Signup({ onSignup, onLogin }) {
               <p>Apply the secure solution.</p>
             </div>
           </div>
-
         </div>
 
         <footer className="login-footer">
-          LOGIC LEAK · INTERACTIVE SECURITY LEARNING
+          LOGIC LEAK{" "}
+          <span aria-hidden="true">·</span>{" "}
+          INTERACTIVE SECURITY LEARNING
         </footer>
-
       </section>
     </main>
   )

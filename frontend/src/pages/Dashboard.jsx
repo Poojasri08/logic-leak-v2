@@ -229,11 +229,9 @@ function Dashboard({
 
   return (
     <main className="dashboard-page">
-
       {/* Navigation */}
 
       <header className="dashboard-header">
-
         <div className="dashboard-logo">
           <div className="dashboard-logo-mark">
             L
@@ -256,17 +254,14 @@ function Dashboard({
             Log out
           </button>
         </div>
-
       </header>
 
       {/* Main Content */}
 
       <section className="dashboard-content">
-
         {/* Welcome */}
 
         <div className="dashboard-welcome">
-
           <div>
             <span className="dashboard-eyebrow">
               YOUR LEARNING PATH
@@ -283,13 +278,11 @@ function Dashboard({
               insecure code.
             </p>
           </div>
-
         </div>
 
         {/* Stats */}
 
         <section className="dashboard-stats">
-
           <div className="dashboard-stat-card">
             <span className="dashboard-stat-icon">
               ⚡
@@ -320,7 +313,6 @@ function Dashboard({
               </span>
             </div>
           </div>
-
         </section>
 
         {challenges.length === 0 && (
@@ -336,7 +328,6 @@ function Dashboard({
 
         {currentChallenge && (
           <section className="dashboard-section">
-
             <div className="dashboard-section-heading">
               <div>
                 <span className="dashboard-eyebrow">
@@ -350,7 +341,6 @@ function Dashboard({
             </div>
 
             <div className="continue-card">
-
               <div className="continue-number">
                 {String(
                   currentChallenge.id
@@ -358,7 +348,6 @@ function Dashboard({
               </div>
 
               <div className="continue-info">
-
                 <span className="challenge-difficulty">
                   {currentChallenge.difficulty ||
                     "Security challenge"}
@@ -374,14 +363,12 @@ function Dashboard({
                 </p>
 
                 <div className="continue-progress">
-
                   <div className="progress-track">
                     <div
                       className="progress-fill"
                       style={{
                         width: `${Math.round(
-                          (currentTiersDone /
-                            3) *
+                          (currentTiersDone / 3) *
                             100
                         )}%`,
                       }}
@@ -392,9 +379,7 @@ function Dashboard({
                     {currentTiersDone} of 3
                     steps complete
                   </span>
-
                 </div>
-
               </div>
 
               <button
@@ -412,9 +397,7 @@ function Dashboard({
 
                 <span>→</span>
               </button>
-
             </div>
-
           </section>
         )}
 
@@ -444,9 +427,7 @@ function Dashboard({
 
         {challenges.length > 0 && (
           <section className="dashboard-section">
-
             <div className="dashboard-section-heading">
-
               <div>
                 <span className="dashboard-eyebrow">
                   CHALLENGES
@@ -460,11 +441,9 @@ function Dashboard({
               <span className="challenge-count">
                 {challenges.length} challenges
               </span>
-
             </div>
 
             <div className="challenge-grid">
-
               {challenges.map((challenge) => {
                 const completed =
                   isCompleted(
@@ -510,9 +489,7 @@ function Dashboard({
                       .join(" ")}
                     key={challenge.id}
                   >
-
                     <div className="challenge-card-top">
-
                       <span className="challenge-number">
                         {String(
                           challenge.id
@@ -524,7 +501,6 @@ function Dashboard({
                           ✓
                         </span>
                       )}
-
                     </div>
 
                     <span className="challenge-difficulty">
@@ -567,18 +543,13 @@ function Dashboard({
                         <span>→</span>
                       )}
                     </button>
-
                   </article>
                 )
               })}
-
             </div>
-
           </section>
         )}
-
       </section>
-
     </main>
   )
 }

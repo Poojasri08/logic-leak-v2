@@ -1,4 +1,7 @@
-﻿import { useCallback, useEffect, useState } from "react"
+﻿import {
+  useEffect,
+  useState,
+} from "react"
 import Login from "./pages/Login"
 import Signup from "./pages/Signup"
 import Dashboard from "./pages/Dashboard"
@@ -7,16 +10,10 @@ import { apiRequest } from "./api"
 
 function App() {
   const [page, setPage] = useState("login")
-  const [selectedChallenge, setSelectedChallenge] =
-    useState(null)
-
   const [sessionStatus, setSessionStatus] =
     useState("checking")
-
   const [user, setUser] = useState(null)
-
   const [notice, setNotice] = useState(null)
-
   const [retryCount, setRetryCount] =
     useState(0)
 
@@ -41,9 +38,7 @@ function App() {
           return
         }
 
-        if (
-          error.status === 401
-        ) {
+        if (error?.status === 401) {
           setUser(null)
           setPage("login")
           setSessionStatus("ready")
@@ -86,19 +81,17 @@ function App() {
         }
       )
     } catch {
-      // The local UI still clears even if the
-      // backend is temporarily unreachable.
+      // Clear local state even if the server
+      // cannot be reached.
     } finally {
       setUser(null)
-      setSelectedChallenge(null)
       setNotice(null)
       setPage("login")
     }
   }
 
-  const handleAuthError = useCallback(() => {
+  function handleDashboardAuthError() {
     setUser(null)
-    setSelectedChallenge(null)
 
     setNotice({
       type: "error",
@@ -107,64 +100,72 @@ function App() {
     })
 
     setPage("login")
-  }, [])
+  }
 
-  function handleChallenge(challengeId) {
-    setSelectedChallenge(challengeId)
+  function handleChallenge() {
     setPage("challenge")
   }
 
   function handleDashboard() {
-    setSelectedChallenge(null)
     setPage("dashboard")
   }
 
   if (sessionStatus === "checking") {
     return (
-      <main
-        style={{
-          padding: "3rem",
-          textAlign: "center",
-        }}
-      >
-        <p>Checking your session...</p>
+      <main className="app-status-page">
+        <section className="app-status-card">
+          <span className="app-status-eyebrow">
+            LOGIC LEAK
+          </span>
+
+          <h1>Checking your session</h1>
+
+          <p>
+            Verifying your authentication
+            session...
+          </p>
+        </section>
       </main>
     )
   }
 
   if (sessionStatus === "error") {
     return (
-      <main
-        style={{
-          padding: "3rem",
-          textAlign: "center",
-        }}
-      >
-        <p>
-          Could not reach the server. Your
-          progress is safe.
-        </p>
+      <main className="app-status-page">
+        <section className="app-status-card">
+          <span className="app-status-eyebrow">
+            CONNECTION ERROR
+          </span>
 
-        <button
-          type="button"
-          onClick={() =>
-            setRetryCount(
-              (count) => count + 1
-            )
-          }
-        >
-          Try again
-        </button>
+          <h1>Could not reach the server</h1>
 
-        <button
-          type="button"
-          onClick={handleLogout}
-          style={{
-            marginLeft: "0.75rem",
-          }}
-        >
-          Log out
-        </button>
+          <p>
+            Your progress is safe. The backend
+            is not responding right now.
+          </p>
+
+          <div className="app-status-actions">
+            <button
+              type="button"
+              className="app-status-primary"
+              onClick={() =>
+                setRetryCount(
+                  (count) => count + 1
+                )
+              }
+            >
+              Try again
+            </button>
+
+            <button
+              type="button"
+              className="app-status-secondary"
+              onClick={handleLogout}
+            >
+              Log out
+            </button>
+          </div>
+        </section>
       </main>
     )
   }
@@ -200,7 +201,9 @@ function App() {
         username={user?.username || ""}
         onChallenge={handleChallenge}
         onLogout={handleLogout}
-        onAuthError={handleAuthError}
+        onAuthError={
+          handleDashboardAuthError
+        }
       />
     )
   }
@@ -208,11 +211,8 @@ function App() {
   if (page === "challenge") {
     return (
       <Challenge
-        challengeId={selectedChallenge}
-
-        onBack={handleDashboard}
         onLogout={handleLogout}
-        onAuthError={handleAuthError}
+        onBack={handleDashboard}
       />
     )
   }

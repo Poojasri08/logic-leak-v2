@@ -34,209 +34,237 @@ function Challenge({ onLogout }) {
   const [hintLevel, setHintLevel] =
     useState(0)
 
-  /* =========================================
-     LOAD CHALLENGES
-  ========================================= */
-
   useEffect(() => {
+    let cancelled = false
+
     async function loadChallenges() {
+      setLoading(true)
+      setApiError("")
+
       try {
         const data = await apiRequest(
           "/api/challenges"
         )
 
-        setApiChallenges(data)
-        setLoading(false)
+        if (cancelled) {
+          return
+        }
+
+        const challenges = Array.isArray(data)
+          ? data
+          : Array.isArray(data.challenges)
+            ? data.challenges
+            : []
+
+        setApiChallenges(challenges)
       } catch (error) {
-        console.error(error)
+        if (cancelled) {
+          return
+        }
+
+        if (
+          error instanceof ApiError &&
+          error.status === 401
+        ) {
+          onLogout()
+          return
+        }
 
         setApiError(
           error.message ||
-            "Failed to load challenges."
+            "Unable to load challenges."
         )
-
-        setLoading(false)
+      } finally {
+        if (!cancelled) {
+          setLoading(false)
+        }
       }
     }
 
     loadChallenges()
-  }, [])
 
-  /* =========================================
-     LOAD PROGRESS
-  ========================================= */
+    return () => {
+      cancelled = true
+    }
+  }, [onLogout])
 
   useEffect(() => {
     if (apiChallenges.length === 0) {
       return
     }
 
-    async function loadInitialProgress() {
+    let cancelled = false
+
+    async function loadProgress() {
       try {
         const data = await apiRequest(
           "/api/progress"
         )
 
+        if (cancelled) {
+          return
+        }
+
         const progress =
-          data.progress || []
+          data?.progress || data
 
-        const total = progress.reduce(
-          (sum, item) =>
-            sum + Number(item.score || 0),
-          0
-        )
+        const challengeProgress =
+          progress?.challenges ||
+          progress?.challengeProgress ||
+          []
 
-        setScore(total)
+        let totalScore = 0
 
-        const firstIncompleteIndex =
-          apiChallenges.findIndex(
-            (challenge) => {
-              const item =
-                progress.find(
-                  (entry) =>
-                    Number(
-                      entry.challenge_id
-                    ) ===
-                    Number(challenge.id)
-                )
-
-              return (
-                !item ||
-                Number(item.completed) !== 1
-              )
-            }
+        challengeProgress.forEach((item) => {
+          totalScore += Number(
+            item?.xp ??
+              item?.score ??
+              item?.points ??
+              0
           )
+        })
 
-        if (firstIncompleteIndex !== -1) {
-          setChallengeIndex(
-            firstIncompleteIndex
-          )
+        setScore(totalScore)
 
-          const currentProgress =
-            progress.find(
-              (entry) =>
-                Number(
-                  entry.challenge_id
+        let nextIndex = 0
+        let nextTier = 1
+
+        for (
+          let index = 0;
+          index < apiChallenges.length;
+          index += 1
+        ) {
+          const challenge = apiChallenges[index]
+
+          const progressItem =
+            challengeProgress.find(
+              (item) =>
+                String(
+                  item?.challengeId ??
+                    item?.challenge_id ??
+                    item?.id
                 ) ===
-                Number(
-                  apiChallenges[
-                    firstIncompleteIndex
-                  ].id
+                String(
+                  challenge?.id
                 )
             )
 
-          if (!currentProgress) {
-            setTier(1)
-          } else if (
-            Number(
-              currentProgress.tier1_completed
-            ) !== 1
-          ) {
-            setTier(1)
-          } else if (
-            Number(
-              currentProgress.tier2_completed
-            ) !== 1
-          ) {
-            setTier(2)
-          } else if (
-            Number(
-              currentProgress.tier3_completed
-            ) !== 1
-          ) {
-            setTier(3)
-          }
-        } else {
-          setChallengeIndex(
-            apiChallenges.length - 1
+          const tier1Complete = Boolean(
+            progressItem?.tier1 ??
+              progressItem?.tier1Completed ??
+              progressItem?.completedTier1
           )
 
-          setTier(4)
+          const tier2Complete = Boolean(
+            progressItem?.tier2 ??
+              progressItem?.tier2Completed ??
+              progressItem?.completedTier2
+          )
+
+          const tier3Complete = Boolean(
+            progressItem?.tier3 ??
+              progressItem?.tier3Completed ??
+              progressItem?.completedTier3
+          )
+
+          if (!tier1Complete) {
+            nextIndex = index
+            nextTier = 1
+            break
+          }
+
+          if (!tier2Complete) {
+            nextIndex = index
+            nextTier = 2
+            break
+          }
+
+          if (!tier3Complete) {
+            nextIndex = index
+            nextTier = 3
+            break
+          }
+
+          if (index === apiChallenges.length - 1) {
+            nextIndex = index
+            nextTier = 4
+          }
         }
+
+        setChallengeIndex(nextIndex)
+        setTier(nextTier)
+
+        if (nextTier === 2) {
+          setTier2Step(1)
+        }
+
+        setAnswer("")
+        setTier2Explanation("")
+        setTier2Fix("")
+        setTier3Answer("")
+        setHintLevel(0)
+        setResult(null)
+        setResultType("")
       } catch (error) {
-        console.error(error)
+        if (cancelled) {
+          return
+        }
 
         if (
           error instanceof ApiError &&
           error.status === 401
         ) {
+          onLogout()
           return
         }
 
         setApiError(
           error.message ||
-            "Failed to load progress."
+            "Unable to load your progress."
         )
       }
     }
 
-    loadInitialProgress()
-  }, [apiChallenges])
+    loadProgress()
 
-  /* =========================================
-     STATES
-  ========================================= */
+    return () => {
+      cancelled = true
+    }
+  }, [apiChallenges, onLogout])
 
-  if (loading) {
-    return (
-      <main className="learning-page">
-        <div className="learning-loading">
-          Preparing your lesson...
-        </div>
-      </main>
-    )
-  }
-
-  if (apiError) {
-    return (
-      <main className="learning-page">
-        <div className="learning-error">
-          {apiError}
-        </div>
-      </main>
-    )
-  }
-
-  if (apiChallenges.length === 0) {
-    return (
-      <main className="learning-page">
-        <div className="learning-error">
-          No lessons are available right now.
-        </div>
-      </main>
-    )
-  }
-
-  const challenge =
-    apiChallenges[challengeIndex]
-
-  const totalChallenges =
-    apiChallenges.length
-
-  /* =========================================
-     HELPERS
-  ========================================= */
-
-  function showResult(message, type) {
-    setResult(message)
+  function showResult(type, message) {
     setResultType(type)
+    setResult(message)
   }
 
-  function handleShowHint() {
-    if (
-      !challenge.hints ||
-      challenge.hints.length === 0
-    ) {
+  function getHint() {
+    const nextLevel = Math.min(
+      hintLevel + 1,
+      3
+    )
+
+    setHintLevel(nextLevel)
+
+    if (nextLevel === 1) {
+      showResult(
+        "hint",
+        "Start by identifying where user-controlled input reaches a sensitive operation."
+      )
       return
     }
 
-    if (
-      hintLevel < challenge.hints.length
-    ) {
-      setHintLevel(
-        (previous) => previous + 1
+    if (nextLevel === 2) {
+      showResult(
+        "hint",
+        "Look closely at how the application builds or executes its database query."
       )
+      return
     }
+
+    showResult(
+      "hint",
+      "The secure fix should prevent attacker-controlled input from changing the structure of the database query."
+    )
   }
 
   function handleAuthError(error) {
@@ -244,13 +272,7 @@ function Challenge({ onLogout }) {
       error instanceof ApiError &&
       error.status === 401
     ) {
-      showResult(
-        "Your session has expired. Please log in again.",
-        "error"
-      )
-
       onLogout()
-
       return true
     }
 
@@ -263,34 +285,53 @@ function Challenge({ onLogout }) {
         "/api/progress"
       )
 
-      const total = (
-        data.progress || []
-      ).reduce(
-        (sum, item) =>
-          sum + Number(item.score || 0),
-        0
-      )
+      const progress =
+        data?.progress || data
 
-      setScore(total)
+      const challengeProgress =
+        progress?.challenges ||
+        progress?.challengeProgress ||
+        []
+
+      let totalScore = 0
+
+      challengeProgress.forEach((item) => {
+        totalScore += Number(
+          item?.xp ??
+            item?.score ??
+            item?.points ??
+            0
+        )
+      })
+
+      setScore(totalScore)
     } catch (error) {
-      console.error(error)
+      if (handleAuthError(error)) {
+        return
+      }
 
-      handleAuthError(error)
+      setApiError(
+        error.message ||
+          "Unable to refresh your progress."
+      )
     }
   }
 
-  /* =========================================
-     TIER 1
-  ========================================= */
-
-  async function handleSubmit(event) {
+  async function handleTier1Submit(event) {
     event.preventDefault()
 
     if (!answer.trim()) {
       showResult(
-        "Enter the vulnerability you found.",
-        "error"
+        "error",
+        "Enter an answer before submitting."
       )
+      return
+    }
+
+    const challenge =
+      apiChallenges[challengeIndex]
+
+    if (!challenge) {
       return
     }
 
@@ -306,57 +347,61 @@ function Challenge({ onLogout }) {
         }
       )
 
-      if (data.correct) {
+      if (data?.correct) {
         showResult(
-          `Correct. You earned ${data.points} XP.`,
-          "success"
+          "success",
+          data.message ||
+            `Correct. You earned ${
+              data.points ?? 30
+            } XP.`
         )
 
         setTier(2)
         setTier2Step(1)
+        setAnswer("")
+        setHintLevel(0)
 
-        loadProgress()
+        await loadProgress()
       } else {
         showResult(
-          "Not quite. Look carefully at how user input reaches the SQL query.",
-          "error"
+          "error",
+          data?.message ||
+            "Not quite. Identify how user input reaches the SQL query."
         )
       }
     } catch (error) {
-      console.error(error)
-
       if (handleAuthError(error)) {
         return
       }
 
       showResult(
+        "error",
         error.message ||
-          "Unable to validate your answer.",
-        "error"
+          "Unable to submit your answer."
       )
     }
   }
-
-  /* =========================================
-     TIER 2
-  ========================================= */
 
   async function handleTier2Submit(event) {
     event.preventDefault()
 
     const currentAnswer =
       tier2Step === 1
-        ? tier2Explanation.trim()
-        : tier2Fix.trim()
+        ? tier2Explanation
+        : tier2Fix
 
-    if (!currentAnswer) {
+    if (!currentAnswer.trim()) {
       showResult(
-        tier2Step === 1
-          ? "Explain why the code is vulnerable."
-          : "Describe how you would fix it.",
-        "error"
+        "error",
+        "Enter an answer before submitting."
       )
+      return
+    }
 
+    const challenge =
+      apiChallenges[challengeIndex]
+
+    if (!challenge) {
       return
     }
 
@@ -368,68 +413,82 @@ function Challenge({ onLogout }) {
           body: {
             tier: 2,
             step: tier2Step,
-            answer: currentAnswer,
+            answer: currentAnswer.trim(),
           },
         }
       )
 
-      if (!data.correct) {
+      if (data?.correct) {
+        if (tier2Step === 1) {
+          showResult(
+            "success",
+            data.message ||
+              "Correct. Now explain how to fix the vulnerability."
+          )
+
+          setTier2Step(2)
+          setTier2Explanation(
+            currentAnswer
+          )
+          setTier2Fix("")
+          setHintLevel(0)
+
+          await loadProgress()
+          return
+        }
+
         showResult(
-          tier2Step === 1
-            ? "Your explanation needs to identify the vulnerability and its cause."
-            : "Your fix should mention parameterized queries or prepared statements.",
-          "error"
+          "success",
+          data.message ||
+            `Correct. You earned ${
+              data.points ?? 30
+            } XP.`
         )
 
-        return
-      }
+        setTier(3)
+        setTier2Step(1)
+        setTier2Explanation("")
+        setTier2Fix("")
+        setHintLevel(0)
 
-      if (tier2Step === 1) {
+        await loadProgress()
+      } else {
         showResult(
-          "Good explanation. Now apply the secure fix.",
-          "success"
+          "error",
+          data?.message ||
+            (tier2Step === 1
+              ? "Explain the vulnerability and why attacker-controlled input is dangerous."
+              : "Use parameterized queries or prepared statements so user input cannot alter SQL structure.")
         )
-
-        setTier2Step(2)
-        return
       }
-
-      showResult(
-        `Correct. You earned ${data.points} XP.`,
-        "success"
-      )
-
-      setTier(3)
-
-      loadProgress()
     } catch (error) {
-      console.error(error)
-
       if (handleAuthError(error)) {
         return
       }
 
       showResult(
+        "error",
         error.message ||
-          "Unable to validate your answer.",
-        "error"
+          "Unable to submit your answer."
       )
     }
   }
-
-  /* =========================================
-     TIER 3
-  ========================================= */
 
   async function handleTier3Submit(event) {
     event.preventDefault()
 
     if (!tier3Answer.trim()) {
       showResult(
-        "Enter your answer before continuing.",
-        "error"
+        "error",
+        "Enter an answer before submitting."
       )
+      return
+    }
 
+    const challenge =
+      apiChallenges[challengeIndex]
+
+    if (!challenge) {
       return
     }
 
@@ -445,52 +504,50 @@ function Challenge({ onLogout }) {
         }
       )
 
-      if (data.correct) {
+      if (data?.correct) {
         showResult(
-          `Challenge complete. You earned ${data.points} XP.`,
-          "success"
+          "success",
+          data.message ||
+            `Challenge complete. You earned ${
+              data.points ?? 40
+            } XP.`
         )
 
         setTier(4)
+        setHintLevel(0)
 
-        loadProgress()
+        await loadProgress()
       } else {
         showResult(
-          "Think about the edge case and the validation the application needs.",
-          "error"
+          "error",
+          data?.message ||
+            "Think about the edge case and the validation the application should enforce."
         )
       }
     } catch (error) {
-      console.error(error)
-
       if (handleAuthError(error)) {
         return
       }
 
       showResult(
+        "error",
         error.message ||
-          "Unable to validate your answer.",
-        "error"
+          "Unable to submit your answer."
       )
     }
   }
 
-  /* =========================================
-     NEXT CHALLENGE
-  ========================================= */
-
   function handleNextChallenge() {
     if (
       challengeIndex >=
-      totalChallenges - 1
+      apiChallenges.length - 1
     ) {
       return
     }
 
     setChallengeIndex(
-      (previous) => previous + 1
+      challengeIndex + 1
     )
-
     setTier(1)
     setAnswer("")
     setTier2Explanation("")
@@ -500,478 +557,699 @@ function Challenge({ onLogout }) {
     setHintLevel(0)
     setResult(null)
     setResultType("")
-
-    loadProgress()
   }
 
-  /* =========================================
-     RENDER
-  ========================================= */
-
-  return (
-    <main className="learning-page">
-
-      {/* Navigation */}
-
-      <header className="learning-nav">
-
-        <div className="learning-brand">
-          <div className="learning-brand-mark">
-            L
+  if (loading) {
+    return (
+      <main className="challenge-page">
+        <div className="challenge-shell">
+          <div className="challenge-loading">
+            <span className="challenge-loading-dot">
+              •
+            </span>
+            Loading challenges...
           </div>
-
-          <span>LOGIC LEAK</span>
         </div>
+      </main>
+    )
+  }
 
-        <div className="learning-nav-right">
-
-          <div className="learning-xp">
-            <span>XP</span>
-            <strong>{score}</strong>
-          </div>
-
-          <button
-            type="button"
-            onClick={onLogout}
-            className="learning-logout"
-          >
-            Log out
-          </button>
-
-        </div>
-
-      </header>
-
-      {/* Lesson header */}
-
-      <section className="lesson-header">
-
-        <div className="lesson-header-inner">
-
-          <div>
-            <span className="lesson-label">
-              WEB SECURITY
+  if (apiError && apiChallenges.length === 0) {
+    return (
+      <main className="challenge-page">
+        <div className="challenge-shell">
+          <section className="challenge-error">
+            <span className="challenge-eyebrow">
+              LOGIC LEAK
             </span>
 
-            <div className="lesson-meta">
-              Lesson {challenge.id} of{" "}
-              {totalChallenges}
-              <span>Â·</span>
-              {challenge.difficulty}
-            </div>
+            <h1>Unable to load challenges</h1>
 
-            <h1>
-              {challenge.title}
-            </h1>
+            <p>{apiError}</p>
+
+            <button
+              type="button"
+              className="challenge-button"
+              onClick={() =>
+                window.location.reload()
+              }
+            >
+              Retry
+            </button>
+          </section>
+        </div>
+      </main>
+    )
+  }
+
+  if (apiChallenges.length === 0) {
+    return (
+      <main className="challenge-page">
+        <div className="challenge-shell">
+          <section className="challenge-empty">
+            <span className="challenge-eyebrow">
+              LOGIC LEAK
+            </span>
+
+            <h1>No challenges available</h1>
 
             <p>
-              Learn to identify, explain,
-              and fix a security vulnerability.
+              The backend returned no learning
+              challenges.
             </p>
-          </div>
+          </section>
+        </div>
+      </main>
+    )
+  }
 
-          <div className="lesson-progress">
+  const challenge =
+    apiChallenges[challengeIndex]
 
-            <span>
-              {tier >= 4
-                ? "Complete"
-                : `Step ${tier} of 3`}
-            </span>
+  if (!challenge) {
+    return null
+  }
 
-            <div className="lesson-progress-track">
-              <div
-                className="lesson-progress-fill"
-                style={{
-                  width:
-                    tier >= 4
-                      ? "100%"
-                      : `${(tier / 3) * 100}%`,
-                }}
-              />
+  const challengeTitle =
+    challenge.title ||
+    challenge.name ||
+    `Challenge ${challengeIndex + 1}`
+
+  const challengeDescription =
+    challenge.description ||
+    challenge.summary ||
+    ""
+
+  const challengeCategory =
+    challenge.category ||
+    challenge.type ||
+    "Web Security"
+
+  const challengeCode =
+    challenge.vulnerableCode ||
+    challenge.code ||
+    challenge.snippet ||
+    ""
+
+  const isComplete = tier >= 4
+
+  return (
+    <main className="challenge-page">
+      <div className="challenge-shell">
+        <header className="challenge-topbar">
+          <div className="challenge-brand">
+            <div className="challenge-logo-mark">
+              L
             </div>
-
-          </div>
-
-        </div>
-
-      </section>
-
-      {/* Learning path */}
-
-      <section className="learning-path">
-
-        <div
-          className={
-            tier >= 1
-              ? "path-step active"
-              : "path-step"
-          }
-        >
-          <span>1</span>
-          <div>
-            <strong>Find</strong>
-            <small>
-              Spot the vulnerability
-            </small>
-          </div>
-        </div>
-
-        <div className="path-connector" />
-
-        <div
-          className={
-            tier >= 2
-              ? "path-step active"
-              : "path-step"
-          }
-        >
-          <span>2</span>
-          <div>
-            <strong>Explain & Fix</strong>
-            <small>
-              Understand the cause
-            </small>
-          </div>
-        </div>
-
-        <div className="path-connector" />
-
-        <div
-          className={
-            tier >= 3
-              ? "path-step active"
-              : "path-step"
-          }
-        >
-          <span>3</span>
-          <div>
-            <strong>Think deeper</strong>
-            <small>
-              Handle the edge case
-            </small>
-          </div>
-        </div>
-
-      </section>
-
-      {/* Main lesson */}
-
-      <section className="lesson-content">
-
-        {/* Code */}
-
-        <div className="lesson-code-card">
-
-          <div className="lesson-card-header">
 
             <div>
-              <span>THE CODE</span>
-              <strong>challenge.js</strong>
+              <strong>LOGIC LEAK</strong>
+              <span>
+                INTERACTIVE SECURITY LEARNING
+              </span>
+            </div>
+          </div>
+
+          <div className="challenge-topbar-actions">
+            <div className="challenge-score">
+              <span>XP</span>
+              <strong>{score}</strong>
             </div>
 
-            <span className="language-tag">
-              JavaScript
+            <button
+              type="button"
+              className="challenge-logout"
+              onClick={onLogout}
+            >
+              Log out
+            </button>
+          </div>
+        </header>
+
+        <section className="challenge-hero">
+          <div>
+            <span className="challenge-eyebrow">
+              CHALLENGE{" "}
+              {challengeIndex + 1}{" "}
+              / {apiChallenges.length}
             </span>
 
+            <h1>{challengeTitle}</h1>
+
+            <p>{challengeDescription}</p>
           </div>
 
-          <div className="code-window">
+          <div className="challenge-category">
+            {challengeCategory}
+          </div>
+        </section>
 
-            <div className="code-lines">
+        <section className="challenge-progress">
+          <div className="challenge-progress-header">
+            <span>LEARNING PATH</span>
 
-              {challenge.code
-                .split("\n")
-                .map((_, index) => (
-                  <span key={index}>
-                    {index + 1}
-                  </span>
-                ))}
+            <span>
+              {isComplete
+                ? "Complete"
+                : `Tier ${Math.min(
+                    tier,
+                    3
+                  )} of 3`}
+            </span>
+          </div>
 
+          <div className="challenge-progress-track">
+            <div
+              className="challenge-progress-fill"
+              style={{
+                width: `${
+                  Math.min(tier, 4) * 25
+                }%`,
+              }}
+            />
+          </div>
+
+          <div className="challenge-tier-list">
+            <div
+              className={`challenge-tier ${
+                tier >= 1
+                  ? "active"
+                  : ""
+              } ${
+                tier > 1
+                  ? "completed"
+                  : ""
+              }`}
+            >
+              <span className="challenge-tier-number">
+                {tier > 1 ? "✓" : "01"}
+              </span>
+
+              <div>
+                <strong>Find</strong>
+                <span>
+                  Spot the vulnerability
+                </span>
+              </div>
             </div>
 
-            <pre>
-              <code>
-                {challenge.code}
-              </code>
-            </pre>
+            <div
+              className={`challenge-tier ${
+                tier >= 2
+                  ? "active"
+                  : ""
+              } ${
+                tier > 2
+                  ? "completed"
+                  : ""
+              }`}
+            >
+              <span className="challenge-tier-number">
+                {tier > 2 ? "✓" : "02"}
+              </span>
 
+              <div>
+                <strong>
+                  Understand
+                </strong>
+                <span>
+                  Explain the weakness
+                </span>
+              </div>
+            </div>
+
+            <div
+              className={`challenge-tier ${
+                tier >= 3
+                  ? "active"
+                  : ""
+              } ${
+                tier > 3
+                  ? "completed"
+                  : ""
+              }`}
+            >
+              <span className="challenge-tier-number">
+                {tier > 3 ? "✓" : "03"}
+              </span>
+
+              <div>
+                <strong>Fix</strong>
+                <span>
+                  Apply the secure solution
+                </span>
+              </div>
+            </div>
           </div>
+        </section>
 
-        </div>
-
-        {/* Task */}
-
-        <div className="lesson-task-card">
-
-          {tier === 1 && (
-            <form onSubmit={handleSubmit}>
-
-              <span className="task-step">
-                STEP 1 Â· FIND
-              </span>
-
-              <h2>
-                What is wrong with this code?
-              </h2>
-
-              <p className="task-description">
-                Identify the security vulnerability
-                you can see in the code above.
-              </p>
-
-              <input
-                type="text"
-                value={answer}
-                onChange={(event) =>
-                  setAnswer(event.target.value)
-                }
-                placeholder="Type the vulnerability..."
-                autoComplete="off"
-              />
-
-              <div className="task-actions">
-
-                <button
-                  type="submit"
-                  className="primary-action"
-                >
-                  Check answer
-                  <span>â†’</span>
-                </button>
-
-              </div>
-
-              {challenge.hints &&
-                challenge.hints.length > 0 && (
-                  <div className="learning-hint">
-
-                    <div>
-                      <strong>
-                        Need a hint?
-                      </strong>
-
-                      <span>
-                        {hintLevel > 0
-                          ? `Hint ${hintLevel} of ${challenge.hints.length}`
-                          : "Try solving it first"}
-                      </span>
-                    </div>
-
-                    {hintLevel > 0 && (
-                      <p>
-                        {
-                          challenge.hints[
-                            hintLevel - 1
-                          ]
-                        }
-                      </p>
-                    )}
-
-                    {hintLevel <
-                      challenge.hints.length && (
-                      <button
-                        type="button"
-                        onClick={handleShowHint}
-                        className="hint-action"
-                      >
-                        {hintLevel === 0
-                          ? "Show hint"
-                          : "Show next hint"}
-                        {" â†’"}
-                      </button>
-                    )}
-
-                  </div>
-                )}
-
-            </form>
-          )}
-
-          {tier === 2 && (
-            <form
-              onSubmit={
-                handleTier2Submit
-              }
-            >
-
-              <span className="task-step">
-                STEP 2 Â·{" "}
-                {tier2Step === 1
-                  ? "EXPLAIN"
-                  : "FIX"}
-              </span>
-
-              <h2>
-                {tier2Step === 1
-                  ? "Why is this vulnerable?"
-                  : "How would you fix it?"}
-              </h2>
-
-              <p className="task-description">
-                {tier2Step === 1
-                  ? "Explain what happens when user-controlled input reaches the database query."
-                  : "Describe the secure approach you would use to prevent the vulnerability."}
-              </p>
-
-              {tier2Step === 1 ? (
-                <textarea
-                  value={tier2Explanation}
-                  onChange={(event) =>
-                    setTier2Explanation(
-                      event.target.value
-                    )
-                  }
-                  placeholder="Explain the vulnerability in your own words..."
-                  rows="7"
-                />
-              ) : (
-                <textarea
-                  value={tier2Fix}
-                  onChange={(event) =>
-                    setTier2Fix(
-                      event.target.value
-                    )
-                  }
-                  placeholder="Describe the secure fix..."
-                  rows="7"
-                />
-              )}
-
-              <div className="task-actions">
-
-                <button
-                  type="submit"
-                  className="primary-action"
-                >
-                  {tier2Step === 1
-                    ? "Continue"
-                    : "Check fix"}
-
-                  <span>â†’</span>
-                </button>
-
-              </div>
-
-            </form>
-          )}
-
-          {tier === 3 && (
-            <form
-              onSubmit={
-                handleTier3Submit
-              }
-            >
-
-              <span className="task-step">
-                STEP 3 Â· THINK DEEPER
-              </span>
-
-              <h2>
-                Test the edge case.
-              </h2>
-
-              <p className="task-description">
-                {challenge.tier3.question}
-              </p>
-
-              <textarea
-                value={tier3Answer}
-                onChange={(event) =>
-                  setTier3Answer(
-                    event.target.value
-                  )
-                }
-                placeholder="Explain what should happen and what validation is needed..."
-                rows="7"
-              />
-
-              <div className="task-actions">
-
-                <button
-                  type="submit"
-                  className="primary-action"
-                >
-                  Complete challenge
-                  <span>â†’</span>
-                </button>
-
-              </div>
-
-            </form>
-          )}
-
-          {tier === 4 && (
-            <div className="lesson-complete">
-
-              <div className="complete-mark">
-                ✓
-              </div>
-
-              <span className="task-step">
-                LESSON COMPLETE
-              </span>
-
-              <h2>
-                You found the flaw.
-              </h2>
-
-              <p>
-                You identified the vulnerability,
-                explained the risk, and worked
-                through the secure fix.
-              </p>
-
-              <div className="earned-xp">
-                <span>YOUR XP</span>
-                <strong>{score}</strong>
-              </div>
-
-              {challengeIndex <
-                totalChallenges - 1 ? (
-                <button
-                  type="button"
-                  className="primary-action"
-                  onClick={
-                    handleNextChallenge
-                  }
-                >
-                  Next lesson
-                  <span>→</span>
-                </button>
-              ) : (
-                <div className="course-complete">
-                  <strong>
-                    Learning path complete
-                  </strong>
-
+        <section className="challenge-content">
+          {!isComplete && (
+            <div className="challenge-code-card">
+              <div className="challenge-card-header">
+                <div>
                   <span>
-                    You completed all{" "}
-                    {totalChallenges} lessons.
+                    VULNERABLE CODE
+                  </span>
+
+                  <strong>
+                    Identify the logic leak
+                  </strong>
+                </div>
+
+                <span className="challenge-code-badge">
+                  SECURITY REVIEW
+                </span>
+              </div>
+
+              <pre className="challenge-code">
+                <code>
+                  {challengeCode ||
+                    "// Code snippet provided by the challenge"}
+                </code>
+              </pre>
+            </div>
+          )}
+
+          <div className="challenge-learning-card">
+            {!isComplete && tier === 1 && (
+              <>
+                <div className="challenge-card-header">
+                  <div>
+                    <span>
+                      TIER 01 · FIND
+                    </span>
+
+                    <strong>
+                      Where is the vulnerability?
+                    </strong>
+                  </div>
+
+                  <span className="challenge-xp-badge">
+                    +30 XP
                   </span>
                 </div>
-              )}
 
-            </div>
-          )}
+                <p className="challenge-instruction">
+                  Identify the security
+                  vulnerability in the code.
+                  Be specific about what makes
+                  the code unsafe.
+                </p>
 
-          {result && (
-            <div
-              className={`learning-result ${resultType}`}
-            >
-              <span>
-                {resultType === "success"
-                  ? "✓"
-                  : "!"}
-              </span>
+                <form
+                  onSubmit={
+                    handleTier1Submit
+                  }
+                  className="challenge-form"
+                >
+                  <textarea
+                    value={answer}
+                    onChange={(event) =>
+                      setAnswer(
+                        event.target.value
+                      )
+                    }
+                    placeholder="Describe the vulnerability..."
+                    rows={5}
+                  />
 
-              <p>{result}</p>
-            </div>
-          )}
+                  <div className="challenge-form-actions">
+                    <button
+                      type="button"
+                      className="challenge-secondary-button"
+                      onClick={getHint}
+                      disabled={
+                        hintLevel >= 3
+                      }
+                    >
+                      Hint{" "}
+                      {hintLevel > 0
+                        ? `(${hintLevel}/3)`
+                        : ""}
+                    </button>
 
-        </div>
+                    <button
+                      type="submit"
+                      className="challenge-button"
+                    >
+                      Submit answer
+                      <span aria-hidden="true">
+                        →
+                      </span>
+                    </button>
+                  </div>
+                </form>
+              </>
+            )}
 
-      </section>
+            {!isComplete && tier === 2 && (
+              <>
+                <div className="challenge-card-header">
+                  <div>
+                    <span>
+                      TIER 02 · UNDERSTAND
+                    </span>
 
+                    <strong>
+                      Explain the vulnerability
+                    </strong>
+                  </div>
+
+                  <span className="challenge-xp-badge">
+                    +30 XP
+                  </span>
+                </div>
+
+                {tier2Step === 1 && (
+                  <>
+                    <p className="challenge-instruction">
+                      Explain what the
+                      vulnerability is and why
+                      attacker-controlled input
+                      is dangerous here.
+                    </p>
+
+                    <form
+                      onSubmit={
+                        handleTier2Submit
+                      }
+                      className="challenge-form"
+                    >
+                      <textarea
+                        value={
+                          tier2Explanation
+                        }
+                        onChange={(event) =>
+                          setTier2Explanation(
+                            event.target.value
+                          )
+                        }
+                        placeholder="Explain the vulnerability and its impact..."
+                        rows={6}
+                      />
+
+                      <div className="challenge-form-actions">
+                        <button
+                          type="button"
+                          className="challenge-secondary-button"
+                          onClick={getHint}
+                          disabled={
+                            hintLevel >= 3
+                          }
+                        >
+                          Hint{" "}
+                          {hintLevel > 0
+                            ? `(${hintLevel}/3)`
+                            : ""}
+                        </button>
+
+                        <button
+                          type="submit"
+                          className="challenge-button"
+                        >
+                          Check explanation
+                          <span aria-hidden="true">
+                            →
+                          </span>
+                        </button>
+                      </div>
+                    </form>
+                  </>
+                )}
+
+                {tier2Step === 2 && (
+                  <>
+                    <div className="challenge-step-complete">
+                      <span>✓</span>
+
+                      <div>
+                        <strong>
+                          Vulnerability identified
+                        </strong>
+
+                        <p>
+                          Now describe the
+                          secure fix.
+                        </p>
+                      </div>
+                    </div>
+
+                    <p className="challenge-instruction">
+                      Explain how you would
+                      prevent attacker-controlled
+                      input from changing the
+                      structure of the SQL query.
+                    </p>
+
+                    <form
+                      onSubmit={
+                        handleTier2Submit
+                      }
+                      className="challenge-form"
+                    >
+                      <textarea
+                        value={tier2Fix}
+                        onChange={(event) =>
+                          setTier2Fix(
+                            event.target.value
+                          )
+                        }
+                        placeholder="Describe the secure coding fix..."
+                        rows={6}
+                      />
+
+                      <div className="challenge-form-actions">
+                        <button
+                          type="button"
+                          className="challenge-secondary-button"
+                          onClick={getHint}
+                          disabled={
+                            hintLevel >= 3
+                          }
+                        >
+                          Hint{" "}
+                          {hintLevel > 0
+                            ? `(${hintLevel}/3)`
+                            : ""}
+                        </button>
+
+                        <button
+                          type="submit"
+                          className="challenge-button"
+                        >
+                          Check fix
+                          <span aria-hidden="true">
+                            →
+                          </span>
+                        </button>
+                      </div>
+                    </form>
+                  </>
+                )}
+              </>
+            )}
+
+            {!isComplete && tier === 3 && (
+              <>
+                <div className="challenge-card-header">
+                  <div>
+                    <span>
+                      TIER 03 · FIX
+                    </span>
+
+                    <strong>
+                      Apply the secure solution
+                    </strong>
+                  </div>
+
+                  <span className="challenge-xp-badge">
+                    +40 XP
+                  </span>
+                </div>
+
+                <p className="challenge-instruction">
+                  Provide the final secure
+                  implementation or describe
+                  the exact change required to
+                  prevent the vulnerability.
+                </p>
+
+                <form
+                  onSubmit={
+                    handleTier3Submit
+                  }
+                  className="challenge-form"
+                >
+                  <textarea
+                    value={tier3Answer}
+                    onChange={(event) =>
+                      setTier3Answer(
+                        event.target.value
+                      )
+                    }
+                    placeholder="Describe or provide the secure fix..."
+                    rows={7}
+                  />
+
+                  <div className="challenge-form-actions">
+                    <button
+                      type="button"
+                      className="challenge-secondary-button"
+                      onClick={getHint}
+                      disabled={
+                        hintLevel >= 3
+                      }
+                    >
+                      Hint{" "}
+                      {hintLevel > 0
+                        ? `(${hintLevel}/3)`
+                        : ""}
+                    </button>
+
+                    <button
+                      type="submit"
+                      className="challenge-button"
+                    >
+                      Complete challenge
+                      <span aria-hidden="true">
+                        →
+                      </span>
+                    </button>
+                  </div>
+                </form>
+              </>
+            )}
+
+            {isComplete && (
+              <div className="challenge-complete">
+                <div className="challenge-complete-icon">
+                  ✓
+                </div>
+
+                <span className="challenge-eyebrow">
+                  CHALLENGE COMPLETE
+                </span>
+
+                <h2>
+                  Security issue understood.
+                </h2>
+
+                <p>
+                  You identified the
+                  vulnerability, explained why
+                  it matters, and applied the
+                  secure solution.
+                </p>
+
+                <div className="challenge-complete-stats">
+                  <div>
+                    <span>XP EARNED</span>
+                    <strong>100</strong>
+                  </div>
+
+                  <div>
+                    <span>PROGRESS</span>
+                    <strong>
+                      {challengeIndex + 1}/
+                      {apiChallenges.length}
+                    </strong>
+                  </div>
+                </div>
+
+                {challengeIndex <
+                  apiChallenges.length - 1 && (
+                  <button
+                    type="button"
+                    className="challenge-button challenge-next-button"
+                    onClick={
+                      handleNextChallenge
+                    }
+                  >
+                    Next challenge
+                    <span aria-hidden="true">
+                      →
+                    </span>
+                  </button>
+                )}
+
+                {challengeIndex >=
+                  apiChallenges.length - 1 && (
+                  <div className="challenge-all-complete">
+                    <strong>
+                      All challenges complete
+                    </strong>
+
+                    <p>
+                      You have completed every
+                      challenge currently available
+                      in Logic Leak.
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {result && (
+              <div
+                className={`challenge-result ${
+                  resultType
+                    ? `challenge-result-${resultType}`
+                    : ""
+                }`}
+                role={
+                  resultType === "error"
+                    ? "alert"
+                    : "status"
+                }
+              >
+                {resultType ===
+                  "success" && (
+                  <span
+                    aria-hidden="true"
+                  >
+                    ✓
+                  </span>
+                )}
+
+                {resultType ===
+                  "hint" && (
+                  <span
+                    aria-hidden="true"
+                  >
+                    ?
+                  </span>
+                )}
+
+                {resultType ===
+                  "error" && (
+                  <span
+                    aria-hidden="true"
+                  >
+                    !
+                  </span>
+                )}
+
+                <span>{result}</span>
+              </div>
+            )}
+          </div>
+        </section>
+
+        <footer className="challenge-footer">
+          <span>
+            LOGIC LEAK
+          </span>
+
+          <span aria-hidden="true">
+            ·
+          </span>
+
+          <span>
+            LEARN SECURITY BY FIXING IT
+          </span>
+        </footer>
+      </div>
     </main>
   )
 }

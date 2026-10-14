@@ -54,10 +54,7 @@ function Login({ onLogin, onSignup, notice }) {
 
   return (
     <main className="login-page">
-      <div className="login-pattern" />
-
       <section className="login-content">
-
         <header className="login-header">
           <div className="login-logo-mark">
             L
@@ -69,18 +66,33 @@ function Login({ onLogin, onSignup, notice }) {
         </header>
 
         <div className="login-intro">
-          <h1>Learn to spot insecure code.</h1>
+          <span className="login-eyebrow">
+            SECURITY LEARNING PLATFORM
+          </span>
+
+          <h1>
+            Learn to spot
+            <span> insecure code.</span>
+          </h1>
 
           <p>
-            Find vulnerabilities, understand why they happen,
-            and learn how to fix them.
+            Find vulnerabilities, understand why
+            they happen, and learn how to fix them.
           </p>
         </div>
 
         <div className="login-card">
+          <div className="login-card-header">
+            <span className="login-card-label">
+              SECURE ACCESS
+            </span>
+
+            <span className="login-card-status">
+              AUTHENTICATED SESSION
+            </span>
+          </div>
 
           <form onSubmit={handleSubmit}>
-
             {notice && !error && (
               <div
                 className={
@@ -112,6 +124,7 @@ function Login({ onLogin, onSignup, notice }) {
                 }
                 placeholder="Enter your username"
                 autoComplete="username"
+                disabled={loading}
               />
             </div>
 
@@ -129,6 +142,7 @@ function Login({ onLogin, onSignup, notice }) {
                 }
                 placeholder="Enter your password"
                 autoComplete="current-password"
+                disabled={loading}
               />
             </div>
 
@@ -137,7 +151,8 @@ function Login({ onLogin, onSignup, notice }) {
                 className="login-error"
                 role="alert"
               >
-                {error}
+                <span aria-hidden="true">!</span>
+                <span>{error}</span>
               </div>
             )}
 
@@ -146,15 +161,18 @@ function Login({ onLogin, onSignup, notice }) {
               className="login-button"
               disabled={loading}
             >
-              {loading
-                ? "Signing in..."
-                : "Continue"}
+              <span>
+                {loading
+                  ? "Signing in..."
+                  : "Continue"}
+              </span>
 
               {!loading && (
-                <span>→</span>
+                <span aria-hidden="true">
+                  →
+                </span>
               )}
             </button>
-
           </form>
 
           <div className="login-signup">
@@ -163,15 +181,14 @@ function Login({ onLogin, onSignup, notice }) {
             <button
               type="button"
               onClick={onSignup}
+              disabled={loading}
             >
               Create an account
             </button>
           </div>
-
         </div>
 
         <div className="login-features">
-
           <div className="login-feature">
             <span className="feature-number">
               01
@@ -203,18 +220,16 @@ function Login({ onLogin, onSignup, notice }) {
 
             <div>
               <strong>Fix</strong>
-              <p>
-                Learn the secure solution.
-              </p>
+              <p>Learn the secure solution.</p>
             </div>
           </div>
-
         </div>
 
         <footer className="login-footer">
-          LOGIC LEAK · INTERACTIVE SECURITY LEARNING
+          LOGIC LEAK{" "}
+          <span aria-hidden="true">·</span>{" "}
+          INTERACTIVE SECURITY LEARNING
         </footer>
-
       </section>
     </main>
   )
