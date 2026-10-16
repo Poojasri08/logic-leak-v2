@@ -52,9 +52,7 @@ function Challenge({ onLogout }) {
 
         const challenges = Array.isArray(data)
           ? data
-          : Array.isArray(data.challenges)
-            ? data.challenges
-            : []
+          : []
 
         setApiChallenges(challenges)
       } catch (error) {
@@ -105,22 +103,16 @@ function Challenge({ onLogout }) {
           return
         }
 
-        const progress =
-          data?.progress || data
-
         const challengeProgress =
-          progress?.challenges ||
-          progress?.challengeProgress ||
-          []
+          Array.isArray(data?.progress)
+            ? data.progress
+            : []
 
         let totalScore = 0
 
         challengeProgress.forEach((item) => {
           totalScore += Number(
-            item?.xp ??
-              item?.score ??
-              item?.points ??
-              0
+            item?.score ?? 0
           )
         })
 
@@ -134,37 +126,28 @@ function Challenge({ onLogout }) {
           index < apiChallenges.length;
           index += 1
         ) {
-          const challenge = apiChallenges[index]
+          const challenge =
+            apiChallenges[index]
 
           const progressItem =
             challengeProgress.find(
               (item) =>
                 String(
-                  item?.challengeId ??
-                    item?.challenge_id ??
-                    item?.id
+                  item?.challenge_id
                 ) ===
-                String(
-                  challenge?.id
-                )
+                String(challenge?.id)
             )
 
           const tier1Complete = Boolean(
-            progressItem?.tier1 ??
-              progressItem?.tier1Completed ??
-              progressItem?.completedTier1
+            progressItem?.tier1_completed
           )
 
           const tier2Complete = Boolean(
-            progressItem?.tier2 ??
-              progressItem?.tier2Completed ??
-              progressItem?.completedTier2
+            progressItem?.tier2_completed
           )
 
           const tier3Complete = Boolean(
-            progressItem?.tier3 ??
-              progressItem?.tier3Completed ??
-              progressItem?.completedTier3
+            progressItem?.tier3_completed
           )
 
           if (!tier1Complete) {
@@ -185,7 +168,10 @@ function Challenge({ onLogout }) {
             break
           }
 
-          if (index === apiChallenges.length - 1) {
+          if (
+            index ===
+            apiChallenges.length - 1
+          ) {
             nextIndex = index
             nextTier = 4
           }
@@ -237,33 +223,60 @@ function Challenge({ onLogout }) {
     setResult(message)
   }
 
+  function getCurrentHints() {
+    const challenge =
+      apiChallenges[challengeIndex]
+
+    if (!challenge) {
+      return []
+    }
+
+    if (tier === 1) {
+      return Array.isArray(challenge.hints)
+        ? challenge.hints
+        : []
+    }
+
+    if (tier === 2) {
+      return Array.isArray(
+        challenge.tier2?.hints
+      )
+        ? challenge.tier2.hints
+        : []
+    }
+
+    if (tier === 3) {
+      return Array.isArray(
+        challenge.tier3?.hints
+      )
+        ? challenge.tier3.hints
+        : []
+    }
+
+    return []
+  }
+
   function getHint() {
+    const hints = getCurrentHints()
+
+    if (hints.length === 0) {
+      showResult(
+        "hint",
+        "No hint is available for this step."
+      )
+      return
+    }
+
     const nextLevel = Math.min(
       hintLevel + 1,
-      3
+      hints.length
     )
 
     setHintLevel(nextLevel)
 
-    if (nextLevel === 1) {
-      showResult(
-        "hint",
-        "Start by identifying where user-controlled input reaches a sensitive operation."
-      )
-      return
-    }
-
-    if (nextLevel === 2) {
-      showResult(
-        "hint",
-        "Look closely at how the application builds or executes its database query."
-      )
-      return
-    }
-
     showResult(
       "hint",
-      "The secure fix should prevent attacker-controlled input from changing the structure of the database query."
+      hints[nextLevel - 1]
     )
   }
 
@@ -285,22 +298,16 @@ function Challenge({ onLogout }) {
         "/api/progress"
       )
 
-      const progress =
-        data?.progress || data
-
       const challengeProgress =
-        progress?.challenges ||
-        progress?.challengeProgress ||
-        []
+        Array.isArray(data?.progress)
+          ? data.progress
+          : []
 
       let totalScore = 0
 
       challengeProgress.forEach((item) => {
         totalScore += Number(
-          item?.xp ??
-            item?.score ??
-            item?.points ??
-            0
+          item?.score ?? 0
         )
       })
 
@@ -352,7 +359,9 @@ function Challenge({ onLogout }) {
           "success",
           data.message ||
             `Correct. You earned ${
-              data.points ?? 30
+              data.points ??
+              challenge.tier1?.points ??
+              0
             } XP.`
         )
 
@@ -366,7 +375,7 @@ function Challenge({ onLogout }) {
         showResult(
           "error",
           data?.message ||
-            "Not quite. Identify how user input reaches the SQL query."
+            "Not quite. Review the challenge and try again."
         )
       }
     } catch (error) {
@@ -441,7 +450,9 @@ function Challenge({ onLogout }) {
           "success",
           data.message ||
             `Correct. You earned ${
-              data.points ?? 30
+              data.points ??
+              challenge.tier2?.points ??
+              0
             } XP.`
         )
 
@@ -456,9 +467,7 @@ function Challenge({ onLogout }) {
         showResult(
           "error",
           data?.message ||
-            (tier2Step === 1
-              ? "Explain the vulnerability and why attacker-controlled input is dangerous."
-              : "Use parameterized queries or prepared statements so user input cannot alter SQL structure.")
+            "Review the vulnerability and describe the secure approach."
         )
       }
     } catch (error) {
@@ -509,7 +518,9 @@ function Challenge({ onLogout }) {
           "success",
           data.message ||
             `Challenge complete. You earned ${
-              data.points ?? 40
+              data.points ??
+              challenge.tier3?.points ??
+              0
             } XP.`
         )
 
@@ -521,7 +532,7 @@ function Challenge({ onLogout }) {
         showResult(
           "error",
           data?.message ||
-            "Think about the edge case and the validation the application should enforce."
+            "Review the edge case and the validation the application should enforce."
         )
       }
     } catch (error) {
@@ -631,27 +642,58 @@ function Challenge({ onLogout }) {
   }
 
   const challengeTitle =
-    challenge.title ||
-    challenge.name ||
-    `Challenge ${challengeIndex + 1}`
+    challenge.title
 
   const challengeDescription =
-    challenge.description ||
-    challenge.summary ||
-    ""
+    challenge.description
 
   const challengeCategory =
-    challenge.category ||
-    challenge.type ||
-    "Web Security"
+    challenge.category
 
   const challengeCode =
-    challenge.vulnerableCode ||
-    challenge.code ||
-    challenge.snippet ||
-    ""
+    challenge.code
+
+  const tier1Question =
+    challenge.tier1?.question ||
+    "What security vulnerability exists in this code?"
+
+  const tier1Points =
+    Number(challenge.tier1?.points ?? 0)
+
+  const tier2Question =
+    challenge.tier2?.question ||
+    "Explain why this code is vulnerable and describe how you would fix it."
+
+  const tier2ExplainPrompt =
+    challenge.tier2?.explainPrompt ||
+    "Explain what is wrong: what is the weakness, and why does this code allow it?"
+
+  const tier2FixPrompt =
+    challenge.tier2?.fixPrompt ||
+    "Describe the secure approach you would use to build this query."
+
+  const tier2Points =
+    Number(challenge.tier2?.points ?? 0)
+
+  const tier3Question =
+    challenge.tier3?.question ||
+    "What validation or secure coding change should be applied?"
+
+  const tier3Points =
+    Number(challenge.tier3?.points ?? 0)
+
+  const totalPoints =
+    Number(
+      challenge.totalPoints ??
+        tier1Points +
+          tier2Points +
+          tier3Points
+    )
 
   const isComplete = tier >= 4
+
+  const currentHints =
+    getCurrentHints()
 
   return (
     <main className="challenge-page">
@@ -841,20 +883,17 @@ function Challenge({ onLogout }) {
                     </span>
 
                     <strong>
-                      Where is the vulnerability?
+                      {tier1Question}
                     </strong>
                   </div>
 
                   <span className="challenge-xp-badge">
-                    +30 XP
+                    +{tier1Points} XP
                   </span>
                 </div>
 
                 <p className="challenge-instruction">
-                  Identify the security
-                  vulnerability in the code.
-                  Be specific about what makes
-                  the code unsafe.
+                  {tier1Question}
                 </p>
 
                 <form
@@ -880,12 +919,14 @@ function Challenge({ onLogout }) {
                       className="challenge-secondary-button"
                       onClick={getHint}
                       disabled={
-                        hintLevel >= 3
+                        hintLevel >=
+                        currentHints.length ||
+                        currentHints.length === 0
                       }
                     >
                       Hint{" "}
                       {hintLevel > 0
-                        ? `(${hintLevel}/3)`
+                        ? `(${hintLevel}/${currentHints.length})`
                         : ""}
                     </button>
 
@@ -912,22 +953,19 @@ function Challenge({ onLogout }) {
                     </span>
 
                     <strong>
-                      Explain the vulnerability
+                      {tier2Question}
                     </strong>
                   </div>
 
                   <span className="challenge-xp-badge">
-                    +30 XP
+                    +{tier2Points} XP
                   </span>
                 </div>
 
                 {tier2Step === 1 && (
                   <>
                     <p className="challenge-instruction">
-                      Explain what the
-                      vulnerability is and why
-                      attacker-controlled input
-                      is dangerous here.
+                      {tier2ExplainPrompt}
                     </p>
 
                     <form
@@ -955,12 +993,14 @@ function Challenge({ onLogout }) {
                           className="challenge-secondary-button"
                           onClick={getHint}
                           disabled={
-                            hintLevel >= 3
+                            hintLevel >=
+                              currentHints.length ||
+                            currentHints.length === 0
                           }
                         >
                           Hint{" "}
                           {hintLevel > 0
-                            ? `(${hintLevel}/3)`
+                            ? `(${hintLevel}/${currentHints.length})`
                             : ""}
                         </button>
 
@@ -996,10 +1036,7 @@ function Challenge({ onLogout }) {
                     </div>
 
                     <p className="challenge-instruction">
-                      Explain how you would
-                      prevent attacker-controlled
-                      input from changing the
-                      structure of the SQL query.
+                      {tier2FixPrompt}
                     </p>
 
                     <form
@@ -1025,12 +1062,14 @@ function Challenge({ onLogout }) {
                           className="challenge-secondary-button"
                           onClick={getHint}
                           disabled={
-                            hintLevel >= 3
+                            hintLevel >=
+                              currentHints.length ||
+                            currentHints.length === 0
                           }
                         >
                           Hint{" "}
                           {hintLevel > 0
-                            ? `(${hintLevel}/3)`
+                            ? `(${hintLevel}/${currentHints.length})`
                             : ""}
                         </button>
 
@@ -1059,20 +1098,17 @@ function Challenge({ onLogout }) {
                     </span>
 
                     <strong>
-                      Apply the secure solution
+                      {tier3Question}
                     </strong>
                   </div>
 
                   <span className="challenge-xp-badge">
-                    +40 XP
+                    +{tier3Points} XP
                   </span>
                 </div>
 
                 <p className="challenge-instruction">
-                  Provide the final secure
-                  implementation or describe
-                  the exact change required to
-                  prevent the vulnerability.
+                  {tier3Question}
                 </p>
 
                 <form
@@ -1098,12 +1134,14 @@ function Challenge({ onLogout }) {
                       className="challenge-secondary-button"
                       onClick={getHint}
                       disabled={
-                        hintLevel >= 3
+                        hintLevel >=
+                          currentHints.length ||
+                        currentHints.length === 0
                       }
                     >
                       Hint{" "}
                       {hintLevel > 0
-                        ? `(${hintLevel}/3)`
+                        ? `(${hintLevel}/${currentHints.length})`
                         : ""}
                     </button>
 
@@ -1145,7 +1183,9 @@ function Challenge({ onLogout }) {
                 <div className="challenge-complete-stats">
                   <div>
                     <span>XP EARNED</span>
-                    <strong>100</strong>
+                    <strong>
+                      {totalPoints}
+                    </strong>
                   </div>
 
                   <div>
