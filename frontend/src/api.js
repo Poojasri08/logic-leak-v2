@@ -1,4 +1,6 @@
-﻿const API_URL = "http://localhost:5000"
+﻿const API_URL =
+  import.meta.env.VITE_API_URL ||
+  "http://localhost:5000"
 
 export class ApiError extends Error {
   constructor(message, status) {
@@ -20,7 +22,6 @@ export async function apiRequest(
   {
     method = "GET",
     body,
-
   } = {}
 ) {
   const headers = {}
