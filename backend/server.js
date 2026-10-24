@@ -25,7 +25,7 @@ const AUTH_COOKIE_MAX_AGE = 60 * 60 * 1000
 const COOKIE_OPTIONS = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
-  sameSite: "strict",
+  sameSite: "none",
   path: "/",
   maxAge: AUTH_COOKIE_MAX_AGE,
 }
@@ -1369,7 +1369,7 @@ app.post(
         secure:
           process.env.NODE_ENV ===
           "production",
-        sameSite: "strict",
+        sameSite: "none",
         path: "/",
       }
     )
